@@ -6,7 +6,7 @@ using MelonLoader;
 using MelonLoader.Utils;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(RealTimeShop.Plugin), "Real-Time Shop", "0.2.1-rc.23-recovered", "ProbablyStolenMods")]
+[assembly: MelonInfo(typeof(RealTimeShop.Plugin), "Real-Time Shop", "0.2.1-rc.24-recovered", "ProbablyStolenMods")]
 [assembly: MelonGame("Questing Goose Studio", "Probably Stolen")]
 
 namespace RealTimeShop;
@@ -62,13 +62,13 @@ public sealed partial class Plugin : MelonMod
             Enabled = true;
             LogChoice("Installed capability; real time defaults OFF. Enable only at new-game creation.");
             Rebase();
-            LoggerInstance.Msg("Real-Time Shop 0.2.1-rc.23-recovered loaded; real time requires new-game opt-in.");
+            LoggerInstance.Msg("Real-Time Shop 0.2.1-rc.24-recovered loaded; real time requires new-game opt-in.");
         }
         catch (Exception ex) { Disable(ex); }
     }
 
     internal void Rebase() { lastTick = wall.Elapsed.TotalSeconds; lastNoticeTick = lastTick; }
-    internal void ClearNotices() { ClearBarks(); GameHooks.ClearGoods(); notices.Clear(); nativeHoldExplanation = ""; }
+    internal void ClearNotices() { GameHooks.ClearGoods(); notices.Clear(); nativeHoldExplanation = ""; ClearBarks(); }
     internal void LogChoice(string text, bool warning=false)
     {
         if (warning) LoggerInstance.Warning("Real-time mode unavailable: " + text);
@@ -128,8 +128,6 @@ public sealed partial class Plugin : MelonMod
         bool prior = Paused;
         Paused = nativePause.Observe(inputs, Time.frameCount);
         nativeHoldExplanation = NativeHoldText.Describe(inputs);
-        if (Paused) notices.SetHold(nativeHoldExplanation);
-        else if (prior) notices.SetHold("");
         if (prior != Paused) Trace(Paused ?
             "Native pause/focus state holds Real-Time Shop timers; native UI input remains active." :
             "Native pause/focus state released; Real-Time Shop timers resume after this frame.");
@@ -182,16 +180,17 @@ public sealed partial class Plugin : MelonMod
             if (TimersHeld || GameHooks.Busy)
                 frame = frame with { Suspended = true };
             string holdReason = TimersHeld ? nativeHoldExplanation : suspension;
-            if (!TimersHeld && !frame.Suspended && Clock.AdmissionClosed && frame.ClosingBlockers != ClosingBlocker.None)
+            bool announceHold = !TimersHeld && !frame.Suspended && Clock.AdmissionClosed && frame.ClosingBlockers != ClosingBlocker.None;
+            if (announceHold)
                 holdReason = "Closing waits for a safe point: " + frame.ClosingBlockers + ".";
-            notices.SetHold(holdReason, !TimersHeld && !frame.Suspended && Clock.AdmissionClosed && frame.ClosingBlockers != ClosingBlocker.None);
+            notices.SetHold(holdReason, announceHold);
             GameHooks.TraceCustomer(frame, holdReason);
             var priorPhase = Clock.Phase;
             var events = Clock.Advance(delta, frame);
             if (Clock.Phase != priorPhase) Trace("phase " + priorPhase + " -> " + Clock.Phase + "; elapsed=" + Clock.Elapsed.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture));
             if (events.HasFlag(ClockEvent.OneHour)) Notify("One hour until closing (20:00).");
             if (events.HasFlag(ClockEvent.FifteenMinutes)) Notify("15 minutes until closing.");
-            if (events.HasFlag(ClockEvent.PatienceWarning)) CustomerWarning();
+            if (CustomerBarkDispatch.ShouldWarn(events, frame.Protected)) CustomerWarning();
             if (events.HasFlag(ClockEvent.Dismiss))
             {
                 Trace("timeout-dismiss-request customer=" + frame.Customer + "; closingOnly=" + frame.ClosingOnlyDismissal + "; patience=" + Clock.PatienceLeft + "; grace=" + Clock.GraceLeft + "; safe=" + frame.SafeToDismiss);

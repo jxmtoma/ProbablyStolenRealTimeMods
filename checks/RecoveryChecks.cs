@@ -6,6 +6,7 @@ internal static class RecoveryChecks
 {
     internal static void Run(Action<bool,string> check)
     {
+        WarningDispatchChecks.Run(check);
         var bark=new CustomerBarkState();bark.Observe("day",1,false,0);
         check(bark.Warn("day",1,"Ada","en",true),"warning belongs to current customer");
         bark.Observe("day",1,false,5,false);

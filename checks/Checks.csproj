@@ -7,6 +7,7 @@
     <NuGetAudit>false</NuGetAudit>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../src/RealTimeShop/CustomerBarkDispatch.cs" Link="CustomerBarkDispatch.cs" />
     <Compile Include="../src/RealTimeShop/CustomerBarkState.cs" Link="CustomerBarkState.cs" />
     <Compile Include="../src/RealTimeShop/BarkText.cs" Link="BarkText.cs" />
     <Compile Include="../src/RealTimeShop/CustomerSpeechTyping.cs" Link="CustomerSpeechTyping.cs" />

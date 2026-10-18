@@ -46,10 +46,11 @@ public sealed partial class Plugin
         if (barkFailed) return;
         try
         {
-            double now = wall.Elapsed.TotalSeconds, delta = Math.Max(0, now - lastBarkTick);
+            double now = wall.Elapsed.TotalSeconds;
             bark.Observe(Clock.DayKey, PlayerStore.Instance.currentClientInstance?.Pointer.ToInt64() ?? 0,
                 bark.Departing ? GameHooks.DepartureBarkUiBlocked() : GameHooks.BarkUiBlocked(),
-                delta, barkPresented, GameHooks.BarkSpeakerVisible());
+                Math.Max(0, now - lastBarkTick), barkPresented, GameHooks.BarkSpeakerVisible());
+            double delta = Math.Max(0, now - lastBarkTick);
             lastBarkTick = now;
             barkPresented = barkView.Render(bark.Line, bark.Speaker, bark.Owner, delta);
         }
@@ -61,8 +62,9 @@ public sealed partial class Plugin
         if (barkFailed) return;
         try
         {
-            var customer = CaptureBarkCustomer();
-            bark.Warn(Clock.DayKey, customer.Visit, customer.Name, BarkLocale(), !GameHooks.BarkUiBlocked());
+            var client = PlayerStore.Instance.currentClientInstance;
+            bark.Warn(Clock.DayKey, client == null ? 0 : client.Pointer.ToInt64(),
+                client?.storeClient?.displayName ?? "", BarkLocale(), !GameHooks.BarkUiBlocked());
         }
         catch (Exception ex) { BarkFailure(ex); }
     }

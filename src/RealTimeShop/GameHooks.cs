@@ -501,16 +501,17 @@ internal static partial class GameHooks
                         item.parentInventory.Pointer!=inventory.Pointer)
                     { facts.Add(new TableItemFacts(null,false,false,cleanupScope)); continue; }
                     bool owned=GeneralHelper.IsItemOwned(item);
-                    bool nested=false;
+                    bool nested=false, nestedKnown=false;
                     if(!owned)
                     {
                         var children=item.FindAllChildItems();
                         if(children==null) { facts.Add(new TableItemFacts(null,false,false,cleanupScope)); continue; }
                         for(int j=0;j<children.Count;j++)
                             if(children[j]==null || children[j].Pointer!=item.Pointer) { nested=true; break; }
+                        if(nested) nestedKnown=NestedCustomerGoodsKnown(item,visit);
                     }
                     facts.Add(new TableItemFacts(owned,goods.Known(visit,item.Pointer.ToInt64(),item.uniqueId),nested,cleanupScope,
-                        nested && NestedCustomerGoodsKnown(item,visit)));
+                        nestedKnown));
                 }
             }
             Inspect(entry.frontInvinvElement,true); Inspect(entry.backInvinvElement,true);
