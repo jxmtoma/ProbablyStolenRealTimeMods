@@ -19,3 +19,10 @@ game/
 runs/
 fixtures/
 .env*
+artifacts/
+local-archive/
+backups/
+private-evidence/
+NuGet.Local.Config
+*.zip
+*.bundle

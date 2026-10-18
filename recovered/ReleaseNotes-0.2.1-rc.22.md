@@ -1,5 +1,7 @@
 # Real-Time Shop 0.2.1-rc.22
 
+> Historical artifact, superseded by RC.24. The original RC.22 source/build commit remains unknown. Current reconstruction, provenance and validation limits are documented in the repository root and [RC.24 release record](../releases/0.2.1-rc.24-recovered/PROVENANCE.md).
+
 **Recovered installed build.** This is a byte-for-byte copy of the mod DLL that was installed in the Probably Stolen Demo on 2026-10-18. The available source tree is version 0.2.0; source matching this binary was not recovered, so this artifact cannot be rebuilt from the repository.
 
 ## Asset

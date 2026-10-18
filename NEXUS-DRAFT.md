@@ -1,6 +1,6 @@
 # Nexus listing draft — review only
 
-**Do not publish yet:** native acceptance and genuine screenshots are pending. The target Nexus game/listing and ownership of the old unpublished draft must be confirmed. Historical draft 608 and the browser's other redirect are not verified release targets. Nothing has been uploaded or submitted.
+**Do not publish yet:** native acceptance and genuine screenshots are pending. Confirm the intended Nexus game/listing and release destination before publication. No Nexus upload or submission has been performed.
 
 Current candidate is **0.2.1-rc.24-recovered**, superseding RC.23. Its missing dismissal/protected-frame warning guards are restored and statically verified. No native gameplay pass is claimed.
 

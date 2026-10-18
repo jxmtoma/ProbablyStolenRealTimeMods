@@ -4,6 +4,8 @@
 
 RC.24 supersedes RC.23 and restores its missing dismissal/protected-frame warning guards. See [RECOVERY-FIDELITY-REVIEW.md](RECOVERY-FIDELITY-REVIEW.md) for the remaining method review and [USER-INSTALL-AND-ACCEPTANCE.md](USER-INSTALL-AND-ACCEPTANCE.md) for user-run testing and rollback.
 
+The exact RC.24 archive/source hashes and validation status are retained in [the release provenance record](releases/0.2.1-rc.24-recovered/PROVENANCE.md). Main includes the recovered source, focused checks and reproducible tooling. Later documentation commits do not re-version or replace the already verified RC.24 archives. Native gameplay acceptance is still pending; a verified file installation is not a gameplay pass.
+
 An unofficial, opt-in real-time shop clock and after-hours sleep schedule for Probably Stolen's Windows Demo. Original mod code is MIT licensed, including commercial reuse.
 
 Compatibility is intentionally narrow: Steam Demo app **4349200**, public build **25382790**, visible **049-Rev5-L**. Unity's internal `Application.version` is **0.46D** for those same tested binaries. Other builds and the full game are not certified. The mod disables itself when its GameAssembly hash or MelonLoader version checks fail.

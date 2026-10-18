@@ -1,5 +1,7 @@
 # Recovered installed build: Real-Time Shop 0.2.1-rc.22
 
+> Historical recovery record. The source/build statements below describe the initial capture, when the repository still contained 0.2.0 source. The current main tree contains the separately versioned RC.24 reconstruction; its exact package source is recorded under [releases/0.2.1-rc.24-recovered](../releases/0.2.1-rc.24-recovered/PROVENANCE.md). The historical RC.22 binary is retained as an owned-mod reference for the optional policy/IL comparisons, not as the current install target. No game or third-party runtime binary is bundled.
+
 `installed/ProbablyStolen.RealTimeShop.dll` is a byte-for-byte copy of the mod DLL found in the installed game’s `Mods` directory on 2026-10-18. The installed copy was left in place.
 
 | Field | Value |
