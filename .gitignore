@@ -5,6 +5,7 @@
 *.user
 *.suo
 *.dll
+!recovered/installed/ProbablyStolen.RealTimeShop.dll
 *.exe
 *.pdb
 *.es3

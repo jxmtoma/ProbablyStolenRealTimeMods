@@ -30,3 +30,7 @@ The mod makes no network requests and transmits no player data. Its diagnostics 
 No game source, assets, generated interop assemblies, saves, or loader binaries are distributed. Native UI controls are reused only at runtime. The mod does not activate dormant or unreleased perks. The game's [modding code of conduct](https://github.com/dragonpan2/probably-stolen-modding/blob/main/CodeOfConduct.md) and [native API guide](https://github.com/dragonpan2/probably-stolen-modding/blob/main/ModdingGuide.md) are separate from this loader's installation instructions.
 
 MIT covers the original project. See [LICENSE](LICENSE), [LICENSE-NOTICE.txt](LICENSE-NOTICE.txt), and `licenses/` for dependency notices and applicable license texts.
+
+## Recovered installed build
+
+[`recovered/installed/ProbablyStolen.RealTimeShop.dll`](recovered/installed/ProbablyStolen.RealTimeShop.dll) is a byte-for-byte copy of the locally installed **0.2.1-rc.22** build. Its source was not recovered, so this binary is not a reproducible build of the checked-in **0.2.0** source. See [the recovery record](recovered/InstalledBuild.md) for its hash and validation limits.
