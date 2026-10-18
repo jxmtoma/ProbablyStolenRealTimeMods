@@ -10,11 +10,11 @@ $source=Split-Path -Parent $PSScriptRoot
 $out=[IO.Path]::GetFullPath($OutputDirectory)
 if(Test-Path -LiteralPath $out){throw 'Use a new output directory; existing artifacts are never overwritten.'}
 if((Get-FileHash -LiteralPath $DllPath -Algorithm SHA256).Hash -ne $ExpectedDllSha256){throw 'DLL hash mismatch'}
-$version='0.2.1-rc.23-recovered'
+$version='0.2.1-rc.24-recovered'
 $stage=Join-Path $out 'player-staging'
 New-Item -ItemType Directory -Path "$stage/Mods","$stage/licenses","$out/verification" -Force | Out-Null
 Copy-Item -LiteralPath $DllPath -Destination "$stage/Mods/ProbablyStolen.RealTimeShop.dll"
-foreach($name in @('README.txt','CHANGELOG.txt','DEPENDENCIES.txt','DEPENDENCY-HASHES.json','LICENSE.txt','LICENSE-NOTICE.txt','VALIDATION.txt','RECOVERY.md','RealTimeShop.cfg.example')){
+foreach($name in @('README.txt','CHANGELOG.txt','DEPENDENCIES.txt','DEPENDENCY-HASHES.json','LICENSE.txt','LICENSE-NOTICE.txt','VALIDATION.txt','RECOVERY.md','USER-INSTALL-AND-ACCEPTANCE.md','RealTimeShop.cfg.example')){
  Copy-Item -LiteralPath (Join-Path $source $name) -Destination (Join-Path $stage $name)
 }
 Get-ChildItem -LiteralPath "$source/licenses" -Filter '*.txt' -File | ForEach-Object {Copy-Item -LiteralPath $_.FullName -Destination "$stage/licenses/$($_.Name)"}

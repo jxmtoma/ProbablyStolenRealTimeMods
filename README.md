@@ -1,6 +1,8 @@
-# Real-Time Shop 0.2.1-rc.23-recovered
+# Real-Time Shop 0.2.1-rc.24-recovered
 
 **Local review candidate; native gameplay acceptance is pending.** This revision reconstructs the missing RC.22 functionality from the preserved MIT-licensed mod binary, then disables routine release diagnostics. It is a new reproducible build, not the original RC.22 binary. See [RECOVERY.md](RECOVERY.md) for provenance and intentional differences.
+
+RC.24 supersedes RC.23 and restores its missing dismissal/protected-frame warning guards. See [RECOVERY-FIDELITY-REVIEW.md](RECOVERY-FIDELITY-REVIEW.md) for the remaining method review and [USER-INSTALL-AND-ACCEPTANCE.md](USER-INSTALL-AND-ACCEPTANCE.md) for user-run testing and rollback.
 
 An unofficial, opt-in real-time shop clock and after-hours sleep schedule for Probably Stolen's Windows Demo. Original mod code is MIT licensed, including commercial reuse.
 
@@ -23,7 +25,7 @@ Deterministic release compilation uses `ContinuousIntegrationBuild`, no PDB, and
 
 ## Validation
 
-The public checks exercise clock, consent, closing, sleep, speech and security policies with synthetic inputs. They do not run native gameplay. This candidate passed 24,936 ordinary managed checks and 38 security assertions. With the private RC.22 fixture, 164,987 total managed assertions passed. Fresh isolated native acceptance and screenshots are still pending. Historical native results apply only to their original binaries. See [VALIDATION.txt](VALIDATION.txt) and [NEXUS-DRAFT.md](NEXUS-DRAFT.md).
+The public checks exercise clock, consent, closing, sleep, speech and security policies with synthetic inputs. They do not run native gameplay. This candidate passed 24,957 ordinary managed checks and 38 security assertions. With the private RC.22 fixture, 165,008 total managed assertions passed. An independent IL review passed 512 reference warning-predicate comparisons and verified the compiled production wiring. Fresh isolated native acceptance and screenshots are still pending. Historical native results apply only to their original binaries. See [VALIDATION.txt](VALIDATION.txt) and [NEXUS-DRAFT.md](NEXUS-DRAFT.md).
 
 ## Conduct and privacy
 

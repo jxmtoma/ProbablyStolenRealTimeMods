@@ -2,6 +2,8 @@
 
 **Do not publish yet:** native acceptance and genuine screenshots are pending. The target Nexus game/listing and ownership of the old unpublished draft must be confirmed. Historical draft 608 and the browser's other redirect are not verified release targets. Nothing has been uploaded or submitted.
 
+Current candidate is **0.2.1-rc.24-recovered**, superseding RC.23. Its missing dismissal/protected-frame warning guards are restored and statically verified. No native gameplay pass is claimed.
+
 ## Title
 
 Real-Time Shop - Real-Time Days and Customer Patience
@@ -18,7 +20,7 @@ Customer patience speech uses localized text and the game's presentation referen
 
 Time continues after closing. Sleep through the native bedroll and sleep screen; late sleep moves the next opening as late as 11:00 while closing remains 20:00. Native overnight costs, rent, security and protected interactions retain control. No forced sleep bypasses native disabled controls. Timed departures and shorter late-start days can affect trading opportunities and income.
 
-Version **0.2.1-rc.23-recovered** is a reconstructed source candidate based on the preserved RC.22 mod. It is not the original RC.22 binary or a gameplay-certified stable release. Fresh native installation, clock/dialogue/trade, patience, early/late sleep and save/load/menu acceptance remain pending. Diagnostics default off; useful warnings and errors remain.
+Version **0.2.1-rc.24-recovered** is a reconstructed source candidate based on the preserved RC.22 mod. It is not the original RC.22 binary or a gameplay-certified stable release. Fresh native installation, clock/dialogue/trade, patience, early/late sleep and save/load/menu acceptance remain pending. Diagnostics default off; useful warnings and errors remain.
 
 ## Requirements and build caveats
 
@@ -40,6 +42,7 @@ Close the game and move this DLL out of `Mods`. Keep native saves, both sidecars
 
 ## Changelog
 
+- Restore RC.22 warning suppression on dismissal/protected frames and reference interaction ordering; add focused lifetime regressions and compiled IL dispatch verification.
 - Reconstruct RC.22 speech, Unicode typing, visibility cleanup, nested goods tracking and early closure sleep safeguards into reviewable source.
 - Disable routine debug output by default; keep pause/resume toasts silent and warnings/errors available.
 - Add recovery regression tests, deterministic source/build metadata and current dependency hashes.

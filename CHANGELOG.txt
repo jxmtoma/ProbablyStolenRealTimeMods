@@ -1,4 +1,17 @@
-0.2.1-rc.23-recovered - local review candidate (2026-10-18)
+0.2.1-rc.24-recovered - local review candidate (2026-10-18)
+
+Supersedes RC.23. Restore RC.22's explicit patience-warning guards: the event
+must contain PatienceWarning, must not contain Dismiss, and the frame must
+not be protected. The production call uses the tested pure dispatcher.
+Restore native pause notice-queue behavior, cleanup order, cached closing
+notice decision, nested-provenance evaluation order and speech update order.
+21 focused checks cover dismissal/protected warning suppression and speech
+typing/readable lifetime/obscuring/departure interactions. An independent
+bounded IL review passes 512 RC.22 predicate comparisons and verifies the
+compiled production call/branch wiring. No game/native code executes.
+
+RC.23 artifacts remain historical review artifacts and must not be used as
+the current candidate. Native gameplay acceptance is still pending.
 
 Recover functional RC.22 additions into source: localized customer speech,
 Unicode typing and native presentation references, six readable seconds after
@@ -13,8 +26,8 @@ Retain warnings/errors and actionable gameplay notices. Add Diagnostics for
 bounded local logging. Omit detailed speech, shutter, nested-goods and
 sleep-block telemetry from the reconstruction.
 
-Offline build: zero warnings/errors. Managed checks: 24,936 public checks,
-164,987 total with the private RC.22 pure-policy fixture; 38 separate security
+Offline build: zero warnings/errors. Managed checks: 24,957 public checks,
+165,008 total with the private RC.22 pure-policy fixture; 38 separate security
 assertions. Static audit: 337 resolved interop references, no unstripping stubs
 or unresolved references. Fresh native gameplay and screenshots remain pending.
 

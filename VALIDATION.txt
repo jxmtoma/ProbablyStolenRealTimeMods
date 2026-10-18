@@ -1,18 +1,26 @@
-Real-Time Shop 0.2.1-rc.23-recovered - preparation checks, 2026-10-18
+Real-Time Shop 0.2.1-rc.24-recovered - preparation checks, 2026-10-18
 STATUS: LOCAL REVIEW CANDIDATE. Native gameplay acceptance is pending.
 
 Build: SDK 10.0.401, .NET 6.0.36 references, Release, deterministic/no PDB,
 source path map, no Git informational-version suffix. Existing local SDK and
 cached packages only; online package sources cleared. No dependencies installed.
-Assembly 0.2.1.0; informational/Melon version 0.2.1-rc.23-recovered.
+Assembly 0.2.1.0; informational/Melon version 0.2.1-rc.24-recovered.
 
-24,936 ordinary managed assertions and 38 separate security assertions passed.
-With the private RC.22 pure-policy fixture, 164,987 total managed assertions
+24,957 ordinary managed assertions and 38 separate security assertions passed.
+With the private RC.22 pure-policy fixture, 165,008 total managed assertions
 passed. Comparisons cover seeded speech transitions, Unicode typing, localized
 strings, sleep hints, closure locks, visibility and UI masks. The fixture retains
 only eight original mod policy types, removes native/loader types and assembly
 attributes, and rejects non-policy/non-BCL member references. No game/native
 methods execute. The fixture is excluded from distributed archives.
+
+RC.24 restores the warning dispatch guards missing in RC.23. 21 focused
+assertions cover same-frame dismissal, protected frames, typing/readable
+lifetimes, obscuring, expiry and customer visual departure. A separate bounded
+IL review passed 512 comparisons with the original RC.22 warning branch and
+verified that the compiled Plugin.OnLateUpdate conditionally calls the tested
+dispatcher. No original mod, loader or native method was executed. Its source
+is tools/ReviewWarningDispatch; see RECOVERY-FIDELITY-REVIEW.md.
 
 Static IL audit: 337 reachable interop references resolved; zero unstripping
 stubs or unresolved references. Zero embedded resources, P/Invoke imports,

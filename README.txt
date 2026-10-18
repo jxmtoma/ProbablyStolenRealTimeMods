@@ -1,7 +1,9 @@
-Real-Time Shop 0.2.1-rc.23-recovered - LOCAL REVIEW CANDIDATE
+Real-Time Shop 0.2.1-rc.24-recovered - LOCAL REVIEW CANDIDATE
 
 Reconstructed source; native gameplay acceptance remains pending. This is a
 new build, not the original RC.22 DLL. Read VALIDATION.txt before release.
+RC.24 supersedes RC.23 and restores the missing warning dispatch guards.
+Read USER-INSTALL-AND-ACCEPTANCE.md for user-run installation and rollback.
 
 Adds an opt-in active-time shop clock to Probably Stolen. Choose Real-time
 mode when creating a NEW game; the choice defaults OFF. Existing vanilla
