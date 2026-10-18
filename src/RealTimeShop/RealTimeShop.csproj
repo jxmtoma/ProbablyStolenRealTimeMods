@@ -14,6 +14,7 @@
     <Reference Include="$(LoaderDir)/MelonLoader.dll" Private="false" />
     <Reference Include="$(LoaderDir)/0Harmony.dll" Private="false" />
     <Reference Include="$(LoaderDir)/Il2CppInterop.Runtime.dll" Private="false" />
+    <Reference Include="$(InteropDir)/UnityEngine.AudioModule.dll;$(InteropDir)/UnityEngine.UIModule.dll;$(InteropDir)/Il2CppFebucci.TextAnimator.Runtime.dll;$(InteropDir)/Unity.Localization.dll" Private="false" />
     <Reference Include="$(InteropDir)/Assembly-CSharp.dll;$(InteropDir)/Assembly-CSharp-firstpass.dll;$(InteropDir)/Il2Cppmscorlib.dll;$(InteropDir)/Il2CppSystem.dll;$(InteropDir)/Il2CppSystem.Core.dll;$(InteropDir)/UnityEngine.CoreModule.dll;$(InteropDir)/UnityEngine.IMGUIModule.dll;$(InteropDir)/UnityEngine.InputLegacyModule.dll;$(InteropDir)/UnityEngine.UI.dll;$(InteropDir)/Unity.TextMeshPro.dll" Private="false" />
   </ItemGroup>
   <Target Name="CheckReferences" BeforeTargets="ResolveReferences">

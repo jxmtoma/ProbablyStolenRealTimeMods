@@ -11,11 +11,11 @@ internal sealed class NativeNoticeQueue
         if (pending.Count == 8) pending.RemoveAt(0);
         pending.Add((text, 0));
     }
-    internal void SetHold(string reason)
+    internal void SetHold(string reason, bool announce=false)
     {
-        reason ??= "";
+        reason = announce ? reason ?? "" : "";
         if (reason == hold) return;
-        state = reason.Length > 0 ? reason : "Shop clock resumed.";
+        state = reason;
         hold = reason;
     }
     internal void Pump(double activeDelta, bool canDisplay, System.Func<string, bool> display)

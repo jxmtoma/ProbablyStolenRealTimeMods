@@ -338,7 +338,7 @@ Check(notices.Count == 8, "event queue bounded");
 notices.Clear(); Check(notices.Count == 0, "lifecycle cleanup clears owned queue");
 notices.SetHold("paused"); notices.SetHold("");
 notices.Pump(0,true,text => { shown=text;return true; });
-Check(shown == "Shop clock resumed.", "resume replaces stale pause explanation");
+Check(shown == "warning" && notices.Count == 0, "routine pause and resume are silent");
 notices.SetHold(""); Check(notices.Count == 0,"unchanged state does not repeat");
 Check(NativeHoldText.Describe(active with { MenuVisible=true }).Contains("pause menu"), "menu hold explanation");
 Check(NativeHoldText.Describe(active with { Focused=false }).Contains("unfocused"), "focus hold explanation");
@@ -517,5 +517,6 @@ foreach (bool protectedVisit in new[] { false, true })
 }
 PatrolClosingChecks.Run(Check,Near);
 EveningChecks.Run(Check);
+RecoveryChecks.Run(Check);
 Console.WriteLine($"PASS: {count} checks; native item/money preservation still needs runtime validation.");
 

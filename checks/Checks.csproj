@@ -7,6 +7,11 @@
     <NuGetAudit>false</NuGetAudit>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../src/RealTimeShop/CustomerBarkState.cs" Link="CustomerBarkState.cs" />
+    <Compile Include="../src/RealTimeShop/BarkText.cs" Link="BarkText.cs" />
+    <Compile Include="../src/RealTimeShop/CustomerSpeechTyping.cs" Link="CustomerSpeechTyping.cs" />
+    <Compile Include="../src/RealTimeShop/ClosedShutterLock.cs" Link="ClosedShutterLock.cs" />
+    <Compile Include="../src/RealTimeShop/SleepHintPolicy.cs" Link="SleepHintPolicy.cs" />
     <Compile Include="../src/RealTimeShop/PatrolClosingPolicy.cs" Link="PatrolClosingPolicy.cs" />
     <Compile Include="../src/RealTimeShop/NewGameSetupSelection.cs" Link="NewGameSetupSelection.cs" />
     <Compile Include="../src/RealTimeShop/SaveOptIn.cs" Link="SaveOptIn.cs" />

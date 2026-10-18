@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace RealTimeShop;
 
-public sealed class Plugin : MelonMod
+public sealed partial class Plugin : MelonMod
 {
     internal static Plugin? Current;
     internal ShopClock Clock = new(new Timing());
@@ -66,7 +66,7 @@ public sealed class Plugin : MelonMod
     }
 
     internal void Rebase() { lastTick = wall.Elapsed.TotalSeconds; lastNoticeTick = lastTick; }
-    internal void ClearNotices() { GameHooks.ClearGoods(); notices.Clear(); nativeHoldExplanation = ""; }
+    internal void ClearNotices() { ClearBarks(); GameHooks.ClearGoods(); notices.Clear(); nativeHoldExplanation = ""; }
     internal void LogChoice(string text) => LoggerInstance.Msg("REALTIME-OPT-IN " + text);
     internal void ResetSession()
     {
@@ -134,8 +134,9 @@ public sealed class Plugin : MelonMod
         if (!Enabled) return;
         try
         {
-            if (!RealTimeActive) { Rebase(); return; }
+            if (!RealTimeActive) { ClearBarks(); Rebase(); return; }
             SyncNativePause();
+            UpdateBarks();
             if (!GameHooks.InShop) { ClearNotices(); Rebase(); return; }
             PumpNotices();
         }
@@ -152,6 +153,7 @@ public sealed class Plugin : MelonMod
             if(GameHooks.InShop && GameHooks.FinishPendingLoad()) return;
             if(!RealTimeActive) { Rebase(); return; }
             SyncNativePause();
+            UpdateBarks();
             double now = wall.Elapsed.TotalSeconds, delta = now - lastTick;
             lastTick = now;
             if (!GameHooks.InShop) return;
@@ -176,19 +178,21 @@ public sealed class Plugin : MelonMod
             string holdReason = TimersHeld ? nativeHoldExplanation : suspension;
             if (!TimersHeld && !frame.Suspended && Clock.AdmissionClosed && frame.ClosingBlockers != ClosingBlocker.None)
                 holdReason = "Closing waits for a safe point: " + frame.ClosingBlockers + ".";
-            notices.SetHold(holdReason);
+            notices.SetHold(holdReason, !TimersHeld && !frame.Suspended && Clock.AdmissionClosed && frame.ClosingBlockers != ClosingBlocker.None);
             GameHooks.TraceCustomer(frame, holdReason);
             var priorPhase = Clock.Phase;
             var events = Clock.Advance(delta, frame);
             if (Clock.Phase != priorPhase) Trace("phase " + priorPhase + " -> " + Clock.Phase + "; elapsed=" + Clock.Elapsed.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture));
             if (events.HasFlag(ClockEvent.OneHour)) Notify("One hour until closing (20:00).");
             if (events.HasFlag(ClockEvent.FifteenMinutes)) Notify("15 minutes until closing.");
-            if (events.HasFlag(ClockEvent.PatienceWarning)) Notify("Your customer is running out of patience.");
+            if (events.HasFlag(ClockEvent.PatienceWarning)) CustomerWarning();
             if (events.HasFlag(ClockEvent.Dismiss))
             {
                 Trace("timeout-dismiss-request customer=" + frame.Customer + "; closingOnly=" + frame.ClosingOnlyDismissal + "; patience=" + Clock.PatienceLeft + "; grace=" + Clock.GraceLeft + "; safe=" + frame.SafeToDismiss);
-                Notify("The customer has left.");
+                var customer = CaptureBarkCustomer();
                 store.DismissCurrentClient(false, true, true);
+                if (!frame.Protected && customer.Visit != 0 && store.currentClientInstance == null)
+                    CustomerDeparture(customer.Visit, customer.Name);
             }
             if (events.HasFlag(ClockEvent.Close))
             {

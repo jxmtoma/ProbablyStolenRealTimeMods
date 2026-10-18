@@ -6,13 +6,13 @@ using UnityEngine.EventSystems;
 
 namespace RealTimeShop;
 
-internal static class GameHooks
+internal static partial class GameHooks
 {
     private static int busyDepth, tradeDepth;
     private static readonly CustomerGoodsLedger goods = new();
     private static readonly PatrolVisitGate patrolVisit = new();
     private static readonly Dictionary<long, Dialogue[]> patrolIntroductions = new();
-    internal static void ClearGoods() { goods.Clear(); patrolVisit.Clear(); patrolIntroductions.Clear(); }
+    internal static void ClearGoods() { goods.Clear(); patrolVisit.Clear(); patrolIntroductions.Clear(); closedShutterLock.Clear(); }
     private static bool pendingLoad, openingForClose, pendingNewGame;
     private static readonly HashSet<string> scriptedIds = new(StringComparer.Ordinal);
     private static readonly PropertyInfo[] tutorialHints = typeof(TutorialUIManager)
@@ -52,18 +52,20 @@ internal static class GameHooks
         Add(typeof(EndOfDayUIManager), nameof(EndOfDayUIManager.OnEndDayButtonClick), nameof(SleepPrefix), finalizer: nameof(SleepFinalizer));
         Add(typeof(StoreClientListMinor), nameof(StoreClientListMinor.CreatePatrolOfficer), postfix: nameof(PatrolFactoryPostfix));
         Add(typeof(StoreClientMono), nameof(StoreClientMono.OnArrived), nameof(PatrolArrivalPrefix), finalizer: nameof(PatrolArrivalFinalizer));
+        Add(typeof(StoreClientMono), nameof(StoreClientMono.OnLeft), postfix: nameof(CustomerLeftPostfix));
         Add(typeof(DialogUIManager), nameof(DialogUIManager.OnCurrentTextDisplayed), nameof(PatrolTextPrefix), finalizer: nameof(PatrolTextFinalizer));
         Add(typeof(Dialogue), nameof(Dialogue.ExecuteEndAction), nameof(PatrolActionPrefix), finalizer: nameof(PatrolActionFinalizer));
         Add(typeof(PlayerStore), nameof(PlayerStore.GetNextClient), nameof(AdmissionPrefix));
         Add(typeof(PlayerStore), nameof(PlayerStore.TryCallNextClient), nameof(AdmissionPrefix));
         Add(typeof(PlayerStore), nameof(PlayerStore.CanNextClient), postfix: nameof(CanNextPostfix));
         Add(typeof(StoreShutterButton), nameof(StoreShutterButton.OpenShutter), nameof(OpenPrefix));
+        Add(typeof(StoreShutterButton), nameof(StoreShutterButton.EndAndClose), nameof(ShutterClosePrefix), nameof(ShutterClosePostfix));
         Add(typeof(StoreCalendar), "Update", postfix: nameof(CalendarPostfix));
         Add(typeof(PlayerStore), nameof(PlayerStore.AddDirectSellingItemToTable), postfix: nameof(CustomerGoodsPostfix),
             args: new[] { typeof(GameItem), typeof(bool), typeof(bool), typeof(bool), typeof(int) });
         Add(typeof(PlayerStore), nameof(PlayerStore.AddDirectSellingItemToTableMiddle), postfix: nameof(CustomerGoodsPostfix),
             args: new[] { typeof(GameItem), typeof(bool) });
-        Add(typeof(PlayerStore), nameof(PlayerStore.BuyItem), nameof(TradePrefix), finalizer: nameof(TradeFinalizer), args: new[] { typeof(GameItem) });
+        Add(typeof(PlayerStore), nameof(PlayerStore.BuyItem), nameof(BuyPrefix), finalizer: nameof(TradeFinalizer), args: new[] { typeof(GameItem) });
         Add(typeof(PlayerStore), nameof(PlayerStore.SellItem), nameof(TradePrefix), finalizer: nameof(TradeFinalizer), args: new[] { typeof(GameItem) });
         Add(typeof(PlayerStore), nameof(PlayerStore.BuyItemFromTable), nameof(TradePrefix), finalizer: nameof(TradeFinalizer));
         Add(typeof(PlayerStore), nameof(PlayerStore.SellItemFromTable), nameof(TradePrefix), finalizer: nameof(TradeFinalizer));
@@ -147,7 +149,10 @@ internal static class GameHooks
             var parent=gameItem.parentInventory.Pointer;
             if (entry.frontInvinvElement != null && parent == entry.frontInvinvElement.Pointer ||
                 entry.backInvinvElement != null && parent == entry.backInvinvElement.Pointer)
+            {
                 goods.Record(visit.Pointer.ToInt64(), gameItem.Pointer.ToInt64(), gameItem.uniqueId);
+                RecordNestedCustomerGoods(gameItem, visit.Pointer.ToInt64());
+            }
         }
         catch (Exception ex) { Mod.Trace("customer-goods provenance unavailable: " + ex.GetType().Name); }
     }
@@ -502,7 +507,8 @@ internal static class GameHooks
                         for(int j=0;j<children.Count;j++)
                             if(children[j]==null || children[j].Pointer!=item.Pointer) { nested=true; break; }
                     }
-                    facts.Add(new TableItemFacts(owned,goods.Known(visit,item.Pointer.ToInt64(),item.uniqueId),nested,cleanupScope));
+                    facts.Add(new TableItemFacts(owned,goods.Known(visit,item.Pointer.ToInt64(),item.uniqueId),nested,cleanupScope,
+                        nested && NestedCustomerGoodsKnown(item,visit)));
                 }
             }
             Inspect(entry.frontInvinvElement,true); Inspect(entry.backInvinvElement,true);
@@ -609,16 +615,22 @@ internal static class GameHooks
     private static bool OpenPrefix() => !Mod.RealTimeActive || !InShop || Mod.Clock.Phase != Phase.Closed;
     private static string lastSleepBlock = "";
     private static string announcedEvening = "";
-    private static bool SleepSafe(out string reason)
+    private static bool SleepSafe(out string reason) => SleepSafe(out reason, false);
+    private static bool SleepSafe(out string reason, bool nativeSleepReady)
     {
         var store=PlayerStore.Instance;
         if (store.storeState!=PlayerStore.StoreState.CLOSED || Mod.Clock.Phase!=Phase.Closed)
         {reason="The shop must be closed.";return false;}
         if (store.playerLocation!=PlayerStore.PlayerLocation.IN_STORE)
         {reason="Sleep waits until you return to the shop.";return false;}
-        if (!SafeToAct() || TutorialActive() || DialogueVisible() || NativeReportVisible || NativeExitPending ||
+        var tutorial = TutorialUIManager.Instance;
+        if (tutorial != null)
+            foreach (var hint in tutorialHints)
+                if (Visible((GameObject?)hint.GetValue(tutorial)) && SleepHintPolicy.Blocks(hint.Name,tutorial.tutorialStage,nativeSleepReady))
+                {reason="Finish or dismiss the current tutorial instruction before sleeping.";return false;}
+        if (!SafeToAct() || DialogueVisible() || NativeReportVisible || NativeExitPending ||
             store.currentClientInstance!=null || HasProtectedQueued() ||
-            store.isSecurityAlarmActive || store.lockShutterButtonFlag!=0 ||
+            store.isSecurityAlarmActive || closedShutterLock.Blocks(Mod.Clock.DayKey,store.lockShutterButtonFlag) ||
             !ClosingSafety.Safe(ClosingBlockers()) ||
             (GameOverUIManager.Instance!=null && Visible(GameOverUIManager.Instance.uiPanel)))
         {reason="Sleep waits for the current interaction or transition to finish.";return false;}
@@ -665,11 +677,11 @@ internal static class GameHooks
         try
         {
             if(Mod.Clock.SleepRequested)return false;
-            if(!SleepSafe(out string reason)){SleepBlocked(reason);return false;}
             var ui=EndOfDayUIManager.Instance;
             if(ui==null || !Visible(ui.UI) || ui.endDayButton==null)return false;
             ui.RefreshUI();
             if(!ui.endDayButton.IsInteractable() || !Visible(ui.endDayButton.gameObject))return false;
+            if(!SleepSafe(out string reason,true)){SleepBlocked(reason);return false;}
             bool outing=PlayerStore.Instance.healthData.wentToAfterhoursLastNight;
             if(!Mod.Clock.RequestSleep(outing))return false;
             __state=true;lastSleepBlock="";
