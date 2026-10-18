@@ -36,3 +36,9 @@ Retain the runtime's own notices when obtaining or redistributing it.
 All project references use Private=false. No third-party code is merged
 into the mod DLL. License texts are included for attribution and applicable
 linking notice requirements; dependency binaries are excluded.
+
+Optional recovery comparison tooling uses an existing Mono.Cecil.dll
+(MIT, https://github.com/jbevain/cecil), supplied separately through CecilPath.
+It is not required at runtime and is not bundled. Native TextAnimator and
+Localization presentation interfaces are referenced from generated interop
+at runtime; their binaries/assets are not redistributed or relicensed.

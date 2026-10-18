@@ -1,3 +1,25 @@
+0.2.1-rc.23-recovered - local review candidate (2026-10-18)
+
+Recover functional RC.22 additions into source: localized customer speech,
+Unicode typing and native presentation references, six readable seconds after
+typing (fifteen-second wall limit), customer visual departure cleanup, proven
+nested unsold goods, purchase invalidation, native-ready tutorial sleep
+exceptions and same-day shutter lock tracking after early closure. Retain
+existing clock, consent, sidecar and protected native interaction logic.
+This is a reconstruction, not the original historical source.
+
+Disable routine diagnostics by default and keep pause/resume toasts silent.
+Retain warnings/errors and actionable gameplay notices. Add Diagnostics for
+bounded local logging. Omit detailed speech, shutter, nested-goods and
+sleep-block telemetry from the reconstruction.
+
+Offline build: zero warnings/errors. Managed checks: 24,936 public checks,
+164,987 total with the private RC.22 pure-policy fixture; 38 separate security
+assertions. Static audit: 337 resolved interop references, no unstripping stubs
+or unresolved references. Fresh native gameplay and screenshots remain pending.
+
+HISTORICAL RECORD BELOW - DOES NOT VALIDATE THE RECONSTRUCTED CANDIDATE
+
 0.2.0 - stable release (2026-10-09)
 
 Promotes the current Windows after-hours implementation to stable 0.2.0.

@@ -1,4 +1,6 @@
-# Real-Time Shop 0.2.0
+# Real-Time Shop 0.2.1-rc.23-recovered
+
+**Local review candidate; native gameplay acceptance is pending.** This revision reconstructs the missing RC.22 functionality from the preserved MIT-licensed mod binary, then disables routine release diagnostics. It is a new reproducible build, not the original RC.22 binary. See [RECOVERY.md](RECOVERY.md) for provenance and intentional differences.
 
 An unofficial, opt-in real-time shop clock and after-hours sleep schedule for Probably Stolen's Windows Demo. Original mod code is MIT licensed, including commercial reuse.
 
@@ -21,11 +23,11 @@ Deterministic release compilation uses `ContinuousIntegrationBuild`, no PDB, and
 
 ## Validation
 
-The public checks exercise original clock, consent, closing and security policies with synthetic inputs. They do not run native gameplay. The release also undergoes private, isolated native automation with licensed game files and disposable saves; those copyrighted/private fixtures, test adapters and logs are excluded from publication. See VALIDATION.txt for the final release results and exact binary hash.
+The public checks exercise clock, consent, closing, sleep, speech and security policies with synthetic inputs. They do not run native gameplay. This candidate passed 24,936 ordinary managed checks and 38 security assertions. With the private RC.22 fixture, 164,987 total managed assertions passed. Fresh isolated native acceptance and screenshots are still pending. Historical native results apply only to their original binaries. See [VALIDATION.txt](VALIDATION.txt) and [NEXUS-DRAFT.md](NEXUS-DRAFT.md).
 
 ## Conduct and privacy
 
-The mod makes no network requests and transmits no player data. Its diagnostics remain in local loader logs. It changes opted-in save behavior, customer timing, available trading time and therefore potential income; it preserves native overnight expenses and security outcomes. Other mods touching these systems may conflict.
+The mod makes no network requests and transmits no player data. Optional local debug logging defaults OFF (`Diagnostics=false`); useful warnings, errors, startup identification and gameplay notices remain. Routine pause/resume notices are silent. It changes opted-in save behavior, customer timing, available trading time and therefore potential income; native overnight expenses and security outcomes remain in charge. Other mods touching these systems may conflict.
 
 No game source, assets, generated interop assemblies, saves, or loader binaries are distributed. Native UI controls are reused only at runtime. The mod does not activate dormant or unreleased perks. The game's [modding code of conduct](https://github.com/dragonpan2/probably-stolen-modding/blob/main/CodeOfConduct.md) and [native API guide](https://github.com/dragonpan2/probably-stolen-modding/blob/main/ModdingGuide.md) are separate from this loader's installation instructions.
 
@@ -33,4 +35,4 @@ MIT covers the original project. See [LICENSE](LICENSE), [LICENSE-NOTICE.txt](LI
 
 ## Recovered installed build
 
-[`recovered/installed/ProbablyStolen.RealTimeShop.dll`](recovered/installed/ProbablyStolen.RealTimeShop.dll) is a byte-for-byte copy of the locally installed **0.2.1-rc.22** build. Its source was not recovered, so this binary is not a reproducible build of the checked-in **0.2.0** source. See [the recovery record](recovered/InstalledBuild.md) for its hash and validation limits.
+[`recovered/installed/ProbablyStolen.RealTimeShop.dll`](recovered/installed/ProbablyStolen.RealTimeShop.dll) preserves historical **0.2.1-rc.22**. Its exact source and original commit remain unavailable. This branch reconstructs its functional additions for a separately versioned candidate. The preserved binary is excluded from new player/source archives. See [the recovery record](recovered/InstalledBuild.md).

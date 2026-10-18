@@ -1,4 +1,7 @@
-Real-Time Shop 0.2.0 - stable release
+Real-Time Shop 0.2.1-rc.23-recovered - LOCAL REVIEW CANDIDATE
+
+Reconstructed source; native gameplay acceptance remains pending. This is a
+new build, not the original RC.22 DLL. Read VALIDATION.txt before release.
 
 Adds an opt-in active-time shop clock to Probably Stolen. Choose Real-time
 mode when creating a NEW game; the choice defaults OFF. Existing vanilla
@@ -75,6 +78,9 @@ day retains its saved timing; new days use the configured timing. Valid
 ranges: DayMinutes 1–1440, PatienceSeconds 1–86400,
 ClosingGraceSeconds 0–86400. This release ships 30/120/60, not test timing.
 Use the game's normal pause/menu controls; there is no custom F8 shortcut.
+Diagnostics defaults false. Set Diagnostics=true only for bounded local
+debug logging. Routine pause/resume UI messages are silent. Useful warnings,
+errors, startup identification and actionable gameplay notices remain.
 
 UNINSTALL / ROLLBACK
 Close the game. Move this mod DLL out of Mods. Preserve your backups and
@@ -89,14 +95,14 @@ Re-enabling against a native save changed while the mod was absent may not
 restore its previous real-time consent/timing. Avoid overwriting the backup.
 
 VALIDATION / LIMITS
-See CHANGELOG.txt for release validation. Release validation is not an exhaustive playthrough. Native save creation UI, long campaigns,
-every scripted visit, inspections, rent payment/refusal outcomes and other
-mods are not all covered. Tests use disposable fixtures near the relevant clock
-times; they are not full-length campaign playthroughs. Actual outing travel,
-the outing customer-penalty magnitude, crashes during native save, and every unsafe
-interaction at the 03:00 cutoff remain outside native test coverage.
-Short Sleeper was absent from the inspected native perk-selection screen;
-no active-perk behavior or full-game perk availability is certified.
+See VALIDATION.txt. Offline build, managed policy tests, RC.22 pure-policy
+comparisons and static interop checks passed. Fresh game installation/startup,
+clock/dialogue timing, trades, customer lines, early closure sleep, late/forced
+sleep, save/load/menu and screenshots remain PENDING. No gameplay validation
+is claimed for this reconstructed binary. Historical native results for 0.2.0
+or RC.22 do not validate this candidate. Long campaigns, every scripted visitor,
+inspections, rent outcomes, mod combinations and full-game compatibility are
+not certified.
 Report mod problems with this version, game/loader version and relevant
 MelonLoader log lines; remove personal identifiers before sharing logs.
 
