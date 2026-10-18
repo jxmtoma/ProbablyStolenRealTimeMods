@@ -6,7 +6,7 @@ using MelonLoader;
 using MelonLoader.Utils;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(RealTimeShop.Plugin), "Real-Time Shop", "0.2.0", "ProbablyStolenMods")]
+[assembly: MelonInfo(typeof(RealTimeShop.Plugin), "Real-Time Shop", "0.2.1-rc.23-recovered", "ProbablyStolenMods")]
 [assembly: MelonGame("Questing Goose Studio", "Probably Stolen")]
 
 namespace RealTimeShop;
@@ -16,6 +16,7 @@ public sealed partial class Plugin : MelonMod
     internal static Plugin? Current;
     internal ShopClock Clock = new(new Timing());
     internal bool Enabled, Paused;
+    internal bool Diagnostics { get; private set; }
     internal readonly SaveOptInSession Session = new();
     internal bool RealTimeActive => Enabled && GameHooks.InShop &&
         Session.Matches(PlayerStore.Instance.saveSlotId, PlayerStore.Instance.runID);
@@ -37,6 +38,7 @@ public sealed partial class Plugin : MelonMod
         try
         {
             var category = MelonPreferences.CreateCategory("RealTimeShop");
+            Diagnostics = category.CreateEntry("Diagnostics", false, description: "Optional bounded local debug logging. Restart to apply.").Value;
             configured = new Timing(
                 category.CreateEntry("DayMinutes", 30.0, description: "Active minutes from 08:00 to 20:00. Restart to apply.").Value * 60,
                 category.CreateEntry("PatienceSeconds", 120.0).Value,
@@ -60,19 +62,23 @@ public sealed partial class Plugin : MelonMod
             Enabled = true;
             LogChoice("Installed capability; real time defaults OFF. Enable only at new-game creation.");
             Rebase();
-            LoggerInstance.Msg("Real-Time Shop 0.2.0 loaded; real time requires new-game opt-in.");
+            LoggerInstance.Msg("Real-Time Shop 0.2.1-rc.23-recovered loaded; real time requires new-game opt-in.");
         }
         catch (Exception ex) { Disable(ex); }
     }
 
     internal void Rebase() { lastTick = wall.Elapsed.TotalSeconds; lastNoticeTick = lastTick; }
     internal void ClearNotices() { ClearBarks(); GameHooks.ClearGoods(); notices.Clear(); nativeHoldExplanation = ""; }
-    internal void LogChoice(string text) => LoggerInstance.Msg("REALTIME-OPT-IN " + text);
+    internal void LogChoice(string text, bool warning=false)
+    {
+        if (warning) LoggerInstance.Warning("Real-time mode unavailable: " + text);
+        else Trace("opt-in " + text);
+    }
     internal void ResetSession()
     {
         Session.Reset(); ClearNotices(); Clock.Deactivate(); Paused=false; awaitingMorningReport=false;
         try { RestoreCalendar(); }
-        catch(Exception ex) { calendarText.Clear(); LogChoice("Native calendar restoration unavailable: "+ex.GetType().Name); }
+        catch(Exception ex) { calendarText.Clear(); LogChoice("Native calendar restoration unavailable: "+ex.GetType().Name, true); }
         nativePause.Observe(new NativePauseInputs(false,true,false,false,false,false,false),0);
         Rebase();
     }
@@ -93,7 +99,7 @@ public sealed partial class Plugin : MelonMod
         if (Clock.SleepRequested && !IsNextDay(prior, key)) throw new InvalidOperationException("Unexpected sleep day transition");
         Clock = new ShopClock(configured);
         Clock.StartDay(key, wake);
-        LoggerInstance.Msg("SLEEP-DAY committed clock " + key + "; wake=" + wake + "; previous=" + prior);
+        Trace("sleep-day committed clock " + key + "; wake=" + wake + "; previous=" + prior);
         Rebase();
     }
     private static bool IsNextDay(string before, string after)
@@ -124,7 +130,7 @@ public sealed partial class Plugin : MelonMod
         nativeHoldExplanation = NativeHoldText.Describe(inputs);
         if (Paused) notices.SetHold(nativeHoldExplanation);
         else if (prior) notices.SetHold("");
-        if (prior != Paused) LoggerInstance.Msg(Paused ?
+        if (prior != Paused) Trace(Paused ?
             "Native pause/focus state holds Real-Time Shop timers; native UI input remains active." :
             "Native pause/focus state released; Real-Time Shop timers resume after this frame.");
     }
@@ -232,7 +238,7 @@ public sealed partial class Plugin : MelonMod
         Current = null;
     }
 
-    internal void Trace(string text) { if (diagnostics.Take()) LoggerInstance.Msg("SHOP-DIAG " + text); }
+    internal void Trace(string text) { if (Diagnostics && diagnostics.Take()) LoggerInstance.Msg("SHOP-DIAG " + text); }
     private string lastTableAssessment = "";
     internal void TraceTableAssessment(TableAssessment assessment)
     {
@@ -241,6 +247,7 @@ public sealed partial class Plugin : MelonMod
     }
     internal void TraceObservation(CustomerObservation observation)
     {
+        if (!Diagnostics) return;
         string? message = diagnostics.Observe(observation);
         if (message != null) Trace(message);
     }

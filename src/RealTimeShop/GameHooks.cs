@@ -92,7 +92,7 @@ internal static partial class GameHooks
         catch(Exception ex)
         {
             pendingLoad=false; pendingNewGame=false; openingForClose=false; NewGameChoiceUI.Clear();
-            Mod.ResetSession(); Mod.LogChoice("State unavailable; vanilla remains active: "+ex.GetType().Name);
+            Mod.ResetSession(); Mod.LogChoice("State unavailable; vanilla remains active: "+ex.GetType().Name, true);
         }
     }
     private static bool CreationChoicePrefix(MainMenuUIController __instance) => NewGameChoiceUI.BeforeStart(__instance);
@@ -222,7 +222,7 @@ internal static partial class GameHooks
         {
             // Stop writing timed state after a failed sidecar write; the native save remains valid.
             Mod.ResetSession();
-            Mod.LogChoice("Could not persist opted-in state; vanilla remains active: " + ex.GetType().Name);
+            Mod.LogChoice("Could not persist opted-in state; vanilla remains active: " + ex.GetType().Name, true);
         }
     });
 
@@ -367,6 +367,7 @@ internal static partial class GameHooks
             scriptedIds.Contains(client.identifier ?? ""), client.OnArrival != null, client.OnDismiss != null);
     internal static void TraceCustomer(ShopFrame frame, string holdReason)
     {
+        if (!Mod.Diagnostics) return;
         try
         {
             var instance = PlayerStore.Instance.currentClientInstance;
@@ -378,13 +379,14 @@ internal static partial class GameHooks
     }
     private static void DepartureDiagnosticPrefix()
     {
-        if(!Mod.RealTimeActive) return;
+        if(!Mod.RealTimeActive || !Mod.Diagnostics) return;
         try { var f=Facts(PlayerStore.Instance.currentClientInstance?.storeClient); Mod.Trace("native-dismiss-enter id="+f.Identifier+"; classification="+f.Reason); }
         catch (Exception ex) { Mod.Trace("dismiss observation failed: "+ex.GetType().Name); }
     }
     private static string lastAdmission = "";
     private static void TraceAdmission(bool allowed)
     {
+        if (!Mod.Diagnostics) return;
         try
         {
             var queue=PlayerStore.Instance.storeClientManager.clientStack;
@@ -685,7 +687,7 @@ internal static partial class GameHooks
             bool outing=PlayerStore.Instance.healthData.wentToAfterhoursLastNight;
             if(!Mod.Clock.RequestSleep(outing))return false;
             __state=true;lastSleepBlock="";
-            Mod.LoggerInstance.Msg("SLEEP-REQUEST day="+Mod.Clock.DayKey+"; bedtime="+Mod.Clock.EveningMinute+"; wake="+Mod.Clock.PendingWakeMinute+"; nativeOuting="+outing);
+            Mod.Trace("sleep-request day="+Mod.Clock.DayKey+"; bedtime="+Mod.Clock.EveningMinute+"; wake="+Mod.Clock.PendingWakeMinute+"; nativeOuting="+outing);
             return true;
         }
         catch(Exception ex){Mod.Disable(ex);return false;}

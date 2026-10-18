@@ -75,7 +75,7 @@ internal static class NewGameChoiceUI
                         { selection.Back();if(toggle!=null)toggle.SetIsOnWithoutNotify(false); return; }
                         Plugin.Current.LogChoice("New-game setup Real-time mode="+enabled);
                     }
-                    catch(Exception ex){Clear();Plugin.Current?.LogChoice("Setup choice failed OFF: "+ex.GetType().Name);}
+        catch(Exception ex){Clear();Plugin.Current?.LogChoice("Setup choice failed OFF: "+ex.GetType().Name, true);}
                 });
                 toggle.onValueChanged.AddListener(listener);
                 owned.SetActive(false);owned.transform.SetParent(parent,false);
@@ -93,7 +93,7 @@ internal static class NewGameChoiceUI
             }
             finally { UnityEngine.Object.Destroy(staging); }
         }
-        catch(Exception ex) { Clear(); Plugin.Current?.LogChoice("New-game setup toggle unavailable; vanilla remains active: "+ex.GetType().Name+" "+ex.Message); }
+        catch(Exception ex) { Clear(); Plugin.Current?.LogChoice("New-game setup toggle unavailable; vanilla remains active: "+ex.GetType().Name+" "+ex.Message, true); }
     }
     internal static void Refresh()
     {
@@ -106,7 +106,7 @@ internal static class NewGameChoiceUI
             { selection.Back();if(toggle!=null)toggle.SetIsOnWithoutNotify(false); }
             if(owned.activeSelf!=visible)owned.SetActive(visible);
         }
-        catch(Exception ex){Clear();Plugin.Current?.LogChoice("Setup visibility failed OFF: "+ex.GetType().Name);}
+        catch(Exception ex){Clear();Plugin.Current?.LogChoice("Setup visibility failed OFF: "+ex.GetType().Name, true);}
     }
     internal static void Back()
     { if(finalStartDepth>0)return;selection.Back();if(toggle!=null)toggle.SetIsOnWithoutNotify(false);Plugin.Current?.LogChoice("New-game setup returned from perks; mode reset OFF."); }

@@ -3,4 +3,6 @@
 DayMinutes = 30.0
 PatienceSeconds = 120.0
 ClosingGraceSeconds = 60.0
+# Bounded local debug logging; disabled for normal play.
+Diagnostics = false
 
