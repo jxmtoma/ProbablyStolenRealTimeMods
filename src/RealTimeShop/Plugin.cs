@@ -6,7 +6,7 @@ using MelonLoader;
 using MelonLoader.Utils;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(RealTimeShop.Plugin), "Real-Time Shop", "0.2.1-rc.25-recovered", "ProbablyStolenMods")]
+[assembly: MelonInfo(typeof(RealTimeShop.Plugin), "Real-Time Shop", "1.0.0", "ProbablyStolenMods")]
 [assembly: MelonGame("Questing Goose Studio", "Probably Stolen")]
 
 namespace RealTimeShop;
@@ -62,7 +62,7 @@ public sealed partial class Plugin : MelonMod
             Enabled = true;
             LogChoice("Installed capability; real time defaults OFF. Enable only at new-game creation.");
             Rebase();
-            LoggerInstance.Msg("Real-Time Shop 0.2.1-rc.25-recovered loaded; real time requires new-game opt-in.");
+            LoggerInstance.Msg("Real-Time Shop 1.0.0 loaded; real time requires new-game opt-in.");
         }
         catch (Exception ex) { Disable(ex); }
     }

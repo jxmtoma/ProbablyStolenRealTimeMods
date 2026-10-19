@@ -1,8 +1,10 @@
-Real-Time Shop 0.2.1-rc.25-recovered - LOCAL INSTALLED CANDIDATE
+Real-Time Shop 1.0.0 - PREPARED RELEASE
 
-Focused native timing tests passed for RC.25 in an isolated profile; see
-release-rc25-native-test.txt for the installed hash, backup and coverage limits.
-This is a new build, not the original RC.22 DLL. Broader acceptance is pending.
+The standard SDK build passes 31,127 managed checks and 38 security assertions.
+Its 653 normalized mod method bodies match the native-tested RC.25 build.
+The exact 1.0.0 DLL also passes isolated native startup and save/timer restore.
+See RELEASE-NOTES-1.0.0.md, VALIDATION.txt and the source preparation record.
+RC.25's original focused timing tests are retained in release-rc25-native-test.txt.
 Read USER-INSTALL-AND-ACCEPTANCE.md for user-run installation and rollback.
 
 Adds an opt-in active-time shop clock to Probably Stolen. Choose Real-time
@@ -100,12 +102,13 @@ Re-enabling against a native save changed while the mod was absent may not
 restore its previous real-time consent/timing. Avoid overwriting the backup.
 
 VALIDATION / LIMITS
-See release-rc25-native-test.txt for the exact installed RC.25 hash and focused
-native passes: idle trading timeout, closed/bedroll time, pause/resume, 03:00
-automatic sleep and next-morning play. Those tests include genuine screenshots
-and an isolated save profile. RC.25 also passes the current managed checks.
-Broader trade, speech, protected visitor and save/load coverage remains pending.
-Historical native results for other versions do not validate RC.25. Long campaigns, every scripted visitor,
+Version 1.0.0 passes the standard SDK build, managed/security checks and exact-DLL
+native startup/save/consent/timer restore smoke check. Normal profile files were
+unchanged. All 653 normalized mod method bodies match native-tested RC.25,
+whose focused timing tests cover idle offer timeout, closed/bedroll time,
+pause/resume and automatic sleep. This is limited evidence, not exhaustive native
+equivalence. Full trade, speech, protected visitor and recovery coverage remains
+outside the focused tests. Long campaigns, every scripted visitor,
 inspections, rent outcomes, mod combinations and full-game compatibility are
 not certified.
 Report mod problems with this version, game/loader version and relevant

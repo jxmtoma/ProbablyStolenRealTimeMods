@@ -1,5 +1,11 @@
 # Installation and acceptance
 
+## Prepared 1.0.0 package
+
+Use `RealTimeShop-1.0.0.zip` for installation; the `-source.zip` archive is for rebuilding. Check its hash against SHA256SUMS.txt and the DLL against the package's SOURCE.txt. The supported demo and prerequisites below still apply. Close the game and back up the entire native save folder with both sidecars, current mod DLL and mod preferences. Install only `Mods/ProbablyStolen.RealTimeShop.dll` and retain one copy. Confirm the loader identifies **1.0.0**, then use a disposable real-time save first. Existing vanilla saves stay vanilla. Defaults remain **30 / 120 / 60**, with diagnostics off.
+
+The standard build, managed checks and exact 1.0.0 native startup/save restore smoke check pass. See [the preparation record](releases/1.0.0/PREPARATION.md) for precise evidence and limits. No release tag or public upload has been made. Roll back with your matched pre-install backup as described below.
+
 RC.25 has been installed locally and passed focused native timing tests. See [the installation and test record](release-rc25-native-test.txt) for its hash, backup, isolated test setup and exact coverage. Your normal saves/options and mod preferences were verified unchanged. The existing RC.24 archive does not contain these fixes; the archive-specific instructions below describe that historical package. There is no RC.25 public ZIP yet.
 
 ## Historical RC.24 package instructions

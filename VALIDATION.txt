@@ -1,3 +1,13 @@
+1.0.0 PREPARATION - 2026-10-18
+Standard SDK 10.0.401 / .NET 6.0.36-reference build: zero warnings/errors.
+31,127 managed checks and 38 security assertions pass. All 653 normalized
+mod method bodies match the native-tested RC.25 DLL after normalizing only
+startup version text. The exact 1.0.0 DLL passes isolated native startup and
+matched consent/timer/save restore. Normal saves, sidecars and mod preferences
+are unchanged; Unity logs and analytics cache changed during the smoke test.
+See releases/1.0.0/PREPARATION.md for exact hashes, package checks and limits.
+Native RC.25 timing evidence remains specific to its historical DLL below.
+
 RC.25 UPDATE - local installation and focused native timing tests, 2026-10-18
 31,127 managed checks and 38 security assertions pass. Zero-warning/error
 compilation with bundled Roslyn against installed .NET 6/game interfaces.

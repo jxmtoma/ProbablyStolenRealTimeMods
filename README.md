@@ -1,10 +1,10 @@
-# Real-Time Shop 0.2.1-rc.25-recovered
+# Real-Time Shop 1.0.0
 
 Ordinary customers cancel idle trading panels when their patience expires or closing time arrives. The clock continues with the shutters closed and on the bedroll screen. Confirmations, trade commits, protected visits and normal pause/dialogue holds remain guarded.
 
-RC.25 is installed locally and passed focused native timing tests in an isolated profile, plus 31,127 managed checks and 38 security assertions. See [the installation and native test record](release-rc25-native-test.txt) for the exact DLL hash, backup, methods and limits. No RC.25 public release archive has been prepared. Existing RC.24 archive hashes describe that historical candidate.
+Version 1.0.0 is prepared for release. The standard SDK build passes 31,127 managed checks and 38 security assertions. Its 653 normalized mod method bodies match the native-tested RC.25 build, with startup version text normalized. The exact 1.0.0 binary also passes isolated native startup and matched save/consent/timer restore checks. See [release notes](RELEASE-NOTES-1.0.0.md) and [the preparation record](releases/1.0.0/PREPARATION.md) for hashes, packages and validation scope. No tag or public release has been created.
 
-This candidate includes the RC.24 reconstruction of missing RC.22 functionality from the preserved MIT-licensed mod binary, with routine diagnostics disabled by default. See [RECOVERY.md](RECOVERY.md) for reconstruction provenance and intentional differences. RC.25's timing changes intentionally differ from the historical RC.22 behavior.
+This version includes the RC.24 reconstruction of missing RC.22 functionality from the preserved MIT-licensed mod binary, with routine diagnostics disabled by default. See [RECOVERY.md](RECOVERY.md) for reconstruction provenance. The timing fixes intentionally differ from the historical RC.22 behavior; [the RC.25 test record](release-rc25-native-test.txt) retains their original native evidence.
 
 RC.24 supersedes RC.23 and restores its missing dismissal/protected-frame warning guards. See [RECOVERY-FIDELITY-REVIEW.md](RECOVERY-FIDELITY-REVIEW.md) for the remaining method review and [USER-INSTALL-AND-ACCEPTANCE.md](USER-INSTALL-AND-ACCEPTANCE.md) for user-run testing and rollback.
 
@@ -31,7 +31,7 @@ Deterministic release compilation uses `ContinuousIntegrationBuild`, no PDB, and
 
 ## Validation
 
-The public checks exercise clock, consent, closing, sleep, speech and security policies with synthetic inputs. RC.25 passed 31,127 managed checks, 38 security assertions and the focused native timing scenarios recorded in [the test report](release-rc25-native-test.txt). RC.24's private fixture comparisons and warning-predicate IL review remain historical evidence for that binary. Broader native acceptance and public release preparation remain pending. See [VALIDATION.txt](VALIDATION.txt).
+The public checks exercise clock, consent, closing, sleep, speech and security policies with synthetic inputs. Current results, the exact-binary native smoke check and the relationship to RC.25's focused timing tests are recorded in [the preparation record](releases/1.0.0/PREPARATION.md). Historical fixture/IL reviews apply to their recorded binaries. These checks do not exhaust every transaction, protected event, save/reload failure or long campaign. See [VALIDATION.txt](VALIDATION.txt).
 
 ## Conduct and privacy
 

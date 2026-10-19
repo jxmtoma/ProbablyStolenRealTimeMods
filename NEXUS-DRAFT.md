@@ -1,8 +1,8 @@
 # Nexus listing draft — review only
 
-**Do not publish yet:** native acceptance and genuine screenshots are pending. Confirm the intended Nexus game/listing and release destination before publication. No Nexus upload or submission has been performed.
+**Prepared draft; not published.** Confirm the intended Nexus game/listing and release destination when publication is requested. No Nexus upload, GitHub Release or release tag has been created by this preparation.
 
-Current candidate is **0.2.1-rc.24-recovered**, superseding RC.23. Its missing dismissal/protected-frame warning guards are restored and statically verified. No native gameplay pass is claimed.
+Prepared version is **1.0.0**. Its standard SDK build and managed checks pass. The exact DLL passes isolated native startup and matched save/consent/timer restore. All 653 normalized mod method bodies match the native-tested RC.25 timing build, with startup version text normalized. See [the preparation record](releases/1.0.0/PREPARATION.md) for exact coverage and hashes.
 
 ## Title
 
@@ -14,13 +14,13 @@ An opt-in shop clock for the Probably Stolen Windows Demo: active-time days, cus
 
 ## Description
 
-Choose **Real-time mode** when creating a new game. It defaults off. The calendar shows your shop clock, with a default 30 active minutes from 08:00 to 20:00 and 120 seconds of ordinary customer patience. Trading uses time while unfinished transactions defer unsafe dismissal. Native dialogue, pause menus, focus loss and protected transitions hold timers.
+Choose **Real-time mode** when creating a new game. It defaults off. The calendar shows your shop clock, with a default 30 active minutes from 08:00 to 20:00 and 120 seconds of ordinary customer patience. Idle trading panels are cancelled when an ordinary customer times out; confirmations, active trade commits and other unsafe work still defer departure. Native dialogue, pause menus, focus loss and protected transitions hold timers.
 
 Customer patience speech uses localized text and the game's presentation references. The recovered policy allows six fully readable seconds after typing, bounded by fifteen seconds of wall time, and clears the line when the customer visual leaves. Native rendering and perceived readability still require the pending gameplay check.
 
 Time continues after closing. Sleep through the native bedroll and sleep screen; late sleep moves the next opening as late as 11:00 while closing remains 20:00. Native overnight costs, rent, security and protected interactions retain control. No forced sleep bypasses native disabled controls. Timed departures and shorter late-start days can affect trading opportunities and income.
 
-Version **0.2.1-rc.24-recovered** is a reconstructed source candidate based on the preserved RC.22 mod. It is not the original RC.22 binary or a gameplay-certified stable release. Fresh native installation, clock/dialogue/trade, patience, early/late sleep and save/load/menu acceptance remain pending. Diagnostics default off; useful warnings and errors remain.
+Version **1.0.0** retains the reconstructed RC.22 additions and the RC.25 timing fixes. Focused RC.25 native tests cover idle-offer timeout, closed and bedroll time, pause/resume, automatic 03:00 sleep and an 11:00 next morning. The 1.0.0 binary has its own startup/save restore smoke check. Coverage remains limited: every transaction, scripted visitor, recovery path and long campaign is not exhaustively tested. Diagnostics default off; useful warnings and errors remain.
 
 ## Requirements and build caveats
 
@@ -42,14 +42,16 @@ Close the game and move this DLL out of `Mods`. Keep native saves, both sidecars
 
 ## Changelog
 
+- Let ordinary customers cancel idle trading panels and leave on timeout or closing; keep the clock advancing with closed shutters and the bedroll screen open.
+- Promote the tested timing behavior to 1.0.0, pin the build SDK and prepare verified player/source archives with checksums.
 - Restore RC.22 warning suppression on dismissal/protected frames and reference interaction ordering; add focused lifetime regressions and compiled IL dispatch verification.
 - Reconstruct RC.22 speech, Unicode typing, visibility cleanup, nested goods tracking and early closure sleep safeguards into reviewable source.
 - Disable routine debug output by default; keep pause/resume toasts silent and warnings/errors available.
 - Add recovery regression tests, deterministic source/build metadata and current dependency hashes.
 
-## Screenshots — capture required
+## Screenshots — select and label before publication
 
-No usable tracked or accessible historical gameplay images were found; only package icons appeared in the accessible artifact search. No new gameplay screenshots have been captured. Use only genuine game captures from this exact candidate in a disposable test profile:
+Genuine local captures exist for RC.25 trading timeout, closed time, bedroll time and the next morning, plus the exact 1.0.0 save-restore smoke check. Keep their original version/hash captions; RC.25 imagery must not be labelled as an exact 1.0.0 capture. Do not use generated gameplay imagery. Useful listing images include:
 
 1. New-game opt-in control at its default off state.
 2. Calendar clock during an ordinary active day.

@@ -1,3 +1,12 @@
+1.0.0 - release preparation (2026-10-18)
+
+Promote the tested RC.25 timing behavior to version 1.0.0. Version metadata,
+assembly/file version and startup identification are updated; gameplay logic
+and sidecar schemas are unchanged. Pin SDK 10.0.401 and refresh the player
+instructions, release notes, listing draft and deterministic packaging tools.
+See releases/1.0.0/PREPARATION.md for exact build/package validation and limits.
+No release tag or public upload has been created by this preparation.
+
 0.2.1-rc.25-recovered - local installed candidate (2026-10-18)
 
 Ordinary customers now cancel idle offer/bargaining panels and leave when
