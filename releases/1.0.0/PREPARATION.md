@@ -1,6 +1,8 @@
 # Real-Time Shop 1.0.0 preparation
 
-Prepared locally on 2026-10-18 (America/Los_Angeles). No release tag, GitHub Release or Nexus upload has been created. Player and source archives are local deliverables; their final hashes and exact source commit are recorded alongside this document after packaging.
+Prepared locally on 2026-10-18 (America/Los_Angeles). No release tag, GitHub Release or Nexus upload has been created. Player and source archives are verified local deliverables.
+
+Exact source commit for both archives: **`cdaa07941a0a18eeae50714206dccb733642b9d7`**. Later documentation commits record packaging and local installation results without changing that archive source identity.
 
 The gameplay fixes are committed in `f8c662190409737c9f7c4fb7f898cb566f271cf3`. The 1.0.0 promotion changes assembly/Melon version metadata and startup identification from RC.25. Packaging tools, the SDK pin and release documentation are also updated.
 
@@ -8,10 +10,12 @@ The gameplay fixes are committed in `f8c662190409737c9f7c4fb7f898cb566f271cf3`. 
 |---|---|
 | 1.0.0 mod DLL, assembly/file version 1.0.0.0 | `27A568AE67C434B392FB674D5D0B5DEB9124258886E266D3D2D465324552ED70` |
 | Native-tested RC.25 reference DLL | `407A6270050333FA1DF66F863A0F960A761DF10FA98C32D1757A4090F9D02F36` |
+| RealTimeShop-1.0.0.zip | `046D19B2A4C70ACB471924D410474F3975CFAFC0B54CA4360C503B80DBF11B0A` |
+| RealTimeShop-1.0.0-source.zip | `14284E7581930BD92375439A9B4B3FA88EB42287CC38A38FF01AC3C69954DD61` |
 
 ## Build and managed checks
 
-The standard `Build.ps1 -Rebuild` succeeds with zero warnings and errors. `Test.ps1` passes **31,127 managed checks and 38 security assertions**. Checks use synthetic policy inputs; they do not execute the game.
+The standard `Build.ps1 -Rebuild` succeeds with zero warnings and errors. `Test.ps1` passes **31,127 managed checks and 38 security assertions**. A clean export of the archived source rebuilt the exact DLL hash above and passed the same checks using cached reference packages with online sources cleared; see [SOURCE-REBUILD.json](SOURCE-REBUILD.json). Checks use synthetic policy inputs; they do not execute the game.
 
 Release toolchain: Windows, PowerShell 7.6.5 / .NET 10.0.11, SDK **10.0.401**, and .NET **6.0.36** reference packages. `global.json` pins the SDK without roll-forward. The workspace-local SDK archive was downloaded from Microsoft's release distribution and matched its published SHA-512. Reference packages were restored from NuGet and cached locally. No machine-wide SDK installation is required by this preparation.
 
@@ -50,4 +54,8 @@ Every transaction variant, protected/scripted visitor, recovery/error path, mod 
 
 `tools/Package-Release.ps1` requires the exact committed source and DLL hash. It emits `RealTimeShop-1.0.0.zip` and `RealTimeShop-1.0.0-source.zip`, repeats each deterministic ZIP write and verifies every extracted player entry against staging. Player contents include one mod DLL, documentation, configuration example and license notices. Source exports exclude the historical recovered DLL, native/loader files, build outputs, saves, logs and private fixtures.
 
-Keep the package report and SHA256SUMS with the ZIPs. Final checksum/provenance results are added to this directory after packaging; subsequent documentation commits do not change the recorded archive source identity. Read [release notes](../../RELEASE-NOTES-1.0.0.md) and [installation/rollback instructions](../../USER-INSTALL-AND-ACCEPTANCE.md) before installation. Public release publication is a separate action.
+Both deterministic ZIP reproductions match. All **18** extracted player entries match their staging hashes. See [PACKAGE-VERIFICATION.json](PACKAGE-VERIFICATION.json), [PACKAGE-INVENTORY.json](PACKAGE-INVENTORY.json) and [SHA256SUMS.txt](SHA256SUMS.txt). The ZIPs are retained locally under `artifacts/release-1.0.0/` rather than committed as generated binaries. The source archive identifies the exact source commit above; this final report was added after packaging.
+
+The verified extracted 1.0.0 DLL is installed locally. Its installed hash matches the table above; the prior RC.25 DLL and preferences were backed up under `backups/install-1.0.0-20261018-174522/`. The earlier full save backup remains under `backups/install-20261019-000939/`. Preferences were preserved. Native smoke testing used the isolated copy described above; the normal player campaign was not loaded for testing.
+
+Keep the package report and SHA256SUMS with the ZIPs. Read [release notes](../../RELEASE-NOTES-1.0.0.md) and [installation/rollback instructions](../../USER-INSTALL-AND-ACCEPTANCE.md) before installation. Public release publication is a separate action.
