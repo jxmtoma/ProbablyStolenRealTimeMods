@@ -454,22 +454,28 @@ internal static partial class GameHooks
             var store=PlayerStore.Instance;
             var nego=NegociationUIManager.Instance;
             var bargain=BargainUIManager.Instance;
-            var back=EmporiumEntry.Instance?.backInvinvElement;
+            var entry=EmporiumEntry.Instance;
+            var back=entry?.backInvinvElement;
             bool known=nego!=null && nego.uiObject!=null && nego.confirmPanel!=null &&
                 bargain!=null && bargain.uiObject!=null && back!=null;
             var storeItem=store.currentNegociatedItem;
             var uiItem=nego?.currentNegociatedItem;
+            bool offerVisible=Visible(nego?.uiObject), bargainVisible=Visible(bargain?.uiObject);
+            // Cancellation retains native selection references. Accept only inspected
+            // trade tables, whose item ownership is independently verified by InspectTables.
             bool KnownSelection(GameItem? item) => item==null || back!=null && item.state!=null &&
                 !string.IsNullOrEmpty(item.identifier) && item.parentInventory!=null &&
-                item.parentInventory.Pointer==back.Pointer;
+                (item.parentInventory.Pointer==back.Pointer ||
+                 entry?.frontInvinvElement!=null && item.parentInventory.Pointer==entry.frontInvinvElement.Pointer ||
+                 entry?.backInvinvElementCounter!=null && item.parentInventory.Pointer==entry.backInvinvElementCounter.Pointer);
             bool quiet=other==ClosingBlocker.None && SafeToAct() && tradeDepth==0 &&
                 store.lockStorePhysicalFlag==0 && store.lockNextBellFlag==0;
-            var facts=new NegotiationFacts(known,Visible(nego?.uiObject),Visible(nego?.confirmPanel),
-                Visible(bargain?.uiObject),quiet,KnownSelection(storeItem)&&KnownSelection(uiItem));
-            bool held=NegotiationSafety.Held(facts);
-            string trace=$"negotiation facts known={known} offer={facts.OfferVisible} confirm={facts.ConfirmationVisible} bargain={facts.BargainVisible} quiet={quiet} selectionKnown={facts.SelectionKnown} storeItem={storeItem?.Pointer.ToInt64()??0} uiItem={uiItem?.Pointer.ToInt64()??0} visit={store.currentClientInstance?.Pointer.ToInt64()??0} tradeDepth={tradeDepth} held={held}";
+            var facts=new NegotiationFacts(known,offerVisible,Visible(nego?.confirmPanel),
+                bargainVisible,quiet,KnownSelection(storeItem)&&KnownSelection(uiItem));
+            var blocker=NegotiationSafety.Blocker(facts);
+            string trace=$"negotiation facts known={known} offer={facts.OfferVisible} confirm={facts.ConfirmationVisible} bargain={facts.BargainVisible} quiet={quiet} selectionKnown={facts.SelectionKnown} storeItem={storeItem?.Pointer.ToInt64()??0} uiItem={uiItem?.Pointer.ToInt64()??0} visit={store.currentClientInstance?.Pointer.ToInt64()??0} tradeDepth={tradeDepth} blocker={blocker}";
             if(trace!=lastNegotiationTrace) { lastNegotiationTrace=trace; Mod.Trace(trace); }
-            return held?ClosingBlocker.Negotiation:ClosingBlocker.None;
+            return blocker;
         }
         catch(Exception ex)
         {
@@ -558,7 +564,7 @@ internal static partial class GameHooks
             for (int i = 0; i < choices.Count; i++)
                 if (Visible(choices[i]?.gameObject)) return true;
         // Trade, bargain and confirmation panels alone consume active time.
-        // ClosingBlockers independently protects unfinished transactions, including after grace expires.
+        // Idle offers can be cancelled on timeout; confirmation/commit work remains protected.
         return false;
     }
 
@@ -582,6 +588,28 @@ internal static partial class GameHooks
         return new ShopFrame(CustomerKey(), ready, protectedVisit, suspended,
             client != null && canAct && store.IsClientDimissable() && (IsOrdinary(client) || patrolClosing),
             canClose, closingBlockers, patrolClosing);
+    }
+
+    internal static bool DismissTimedCustomer()
+    {
+        var store = PlayerStore.Instance;
+        var visit = store.currentClientInstance;
+        var frame = Frame(out _);
+        if (Mod.TimersHeld || frame.Suspended || !frame.Ready || !frame.SafeToDismiss ||
+            (frame.Protected ? !frame.ClosingOnlyDismissal || !ClosingSafety.Safe(frame.ClosingBlockers)
+                : !ClosingSafety.SafeToDismiss(frame.ClosingBlockers))) return false;
+        if (frame.ClosingBlockers.HasFlag(ClosingBlocker.TradePanel))
+        {
+            // Use native cancellation, never accept an offer or edit item/money state.
+            BargainUIManager.Instance.CloseUI();
+            NegociationUIManager.Instance.CloseUI();
+            frame = Frame(out _);
+            if (store.currentClientInstance == null || visit == null ||
+                store.currentClientInstance.Pointer != visit.Pointer || frame.Protected || frame.Suspended ||
+                !frame.Ready || !frame.SafeToDismiss || !ClosingSafety.Safe(frame.ClosingBlockers)) return false;
+        }
+        store.DismissCurrentClient(false, true, true);
+        return store.currentClientInstance == null;
     }
 
     private static bool HasProtectedQueued()
@@ -649,7 +677,8 @@ internal static partial class GameHooks
         bool held=Busy || IsBlackScreen() || store.cinematicMode || TutorialActive() || DialogueVisible() || NativeReportVisible ||
             store.isClientBeingArrested || store.isHandlingShootout || NativeExitPending;
         double before=Mod.Clock.EveningMinute ?? Mod.Clock.MinuteOfDay;
-        Mod.Clock.AdvanceEvening(seconds, Mod.TimersHeld || held || report);
+        // Choosing when to sleep is active evening time, even with the bedroll UI open.
+        Mod.Clock.AdvanceEvening(seconds, Mod.TimersHeld || held);
         if(before<1560 && Mod.Clock.EveningMinute>=1560) Mod.Notify("One hour until bedtime (03:00). Sleeping late delays tomorrow's opening.");
         if (announcedEvening!=Mod.Clock.DayKey)
         {announcedEvening=Mod.Clock.DayKey;Mod.Notify("The shop is closed. Time continues until you sleep; bedtime is 03:00.");}

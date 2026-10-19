@@ -1,8 +1,8 @@
-Real-Time Shop 0.2.1-rc.24-recovered - LOCAL REVIEW CANDIDATE
+Real-Time Shop 0.2.1-rc.25-recovered - LOCAL INSTALLED CANDIDATE
 
-Reconstructed source; native gameplay acceptance remains pending. This is a
-new build, not the original RC.22 DLL. Read VALIDATION.txt before release.
-RC.24 supersedes RC.23 and restores the missing warning dispatch guards.
+Focused native timing tests passed for RC.25 in an isolated profile; see
+release-rc25-native-test.txt for the installed hash, backup and coverage limits.
+This is a new build, not the original RC.22 DLL. Broader acceptance is pending.
 Read USER-INSTALL-AND-ACCEPTANCE.md for user-run installation and rollback.
 
 Adds an opt-in active-time shop clock to Probably Stolen. Choose Real-time
@@ -11,13 +11,16 @@ saves are not automatically converted. The calendar shows the clock.
 
 Default day: 30 active minutes, mapping 08:00 to 20:00. Ordinary customer
 patience: 120 seconds. Closing grace: 60 seconds. Dialogue, native pause,
-focus loss and protected transitions hold time. Trading panels let time
-advance but defer unsafe dismissal/closure. Ordinary patrol visits can
+focus loss and protected transitions hold time. Idle trading panels let time
+advance and are cancelled when an ordinary customer's patience expires or
+closing time arrives. Confirmation, trade commits and other unsafe work still
+defer departure/closure. Ordinary patrol visits can
 leave safely; unresolved rent and other protected interactions block closure.
 
 AFTER CLOSING
-Closing the shop no longer freezes the clock. Evening time advances at the
-same rate as the shop day, through midnight. Use the native bedroll and
+Closed shutters do not pause daytime preparation. After closing, evening time
+advances at the same rate as the shop day, through midnight, including while
+the bedroll screen is open. Use the native bedroll and
 sleep screen when ready. Midnight alone does not advance the native day.
 At 02:00 a reminder appears. At 03:00 the clock stops advancing and requests
 native sleep as soon as interactions, pause, transitions and native sleep
@@ -97,12 +100,12 @@ Re-enabling against a native save changed while the mod was absent may not
 restore its previous real-time consent/timing. Avoid overwriting the backup.
 
 VALIDATION / LIMITS
-See VALIDATION.txt. Offline build, managed policy tests, RC.22 pure-policy
-comparisons and static interop checks passed. Fresh game installation/startup,
-clock/dialogue timing, trades, customer lines, early closure sleep, late/forced
-sleep, save/load/menu and screenshots remain PENDING. No gameplay validation
-is claimed for this reconstructed binary. Historical native results for 0.2.0
-or RC.22 do not validate this candidate. Long campaigns, every scripted visitor,
+See release-rc25-native-test.txt for the exact installed RC.25 hash and focused
+native passes: idle trading timeout, closed/bedroll time, pause/resume, 03:00
+automatic sleep and next-morning play. Those tests include genuine screenshots
+and an isolated save profile. RC.25 also passes the current managed checks.
+Broader trade, speech, protected visitor and save/load coverage remains pending.
+Historical native results for other versions do not validate RC.25. Long campaigns, every scripted visitor,
 inspections, rent outcomes, mod combinations and full-game compatibility are
 not certified.
 Report mod problems with this version, game/loader version and relevant

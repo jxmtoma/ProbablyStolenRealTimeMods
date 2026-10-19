@@ -6,7 +6,7 @@ using MelonLoader;
 using MelonLoader.Utils;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(RealTimeShop.Plugin), "Real-Time Shop", "0.2.1-rc.24-recovered", "ProbablyStolenMods")]
+[assembly: MelonInfo(typeof(RealTimeShop.Plugin), "Real-Time Shop", "0.2.1-rc.25-recovered", "ProbablyStolenMods")]
 [assembly: MelonGame("Questing Goose Studio", "Probably Stolen")]
 
 namespace RealTimeShop;
@@ -62,7 +62,7 @@ public sealed partial class Plugin : MelonMod
             Enabled = true;
             LogChoice("Installed capability; real time defaults OFF. Enable only at new-game creation.");
             Rebase();
-            LoggerInstance.Msg("Real-Time Shop 0.2.1-rc.24-recovered loaded; real time requires new-game opt-in.");
+            LoggerInstance.Msg("Real-Time Shop 0.2.1-rc.25-recovered loaded; real time requires new-game opt-in.");
         }
         catch (Exception ex) { Disable(ex); }
     }
@@ -165,10 +165,9 @@ public sealed partial class Plugin : MelonMod
             var store = PlayerStore.Instance;
             // BeginDay runs inside the sleep transition, before MORNING is published.
             // Only the EndDay hook confirms closure; observing CLOSED here must not close a fresh day.
-            if (store.storeState == PlayerStore.StoreState.CLOSED)
+            if (Clock.Phase == Phase.Closed)
             {
-                if (Clock.Phase == Phase.Closed) GameHooks.EveningUpdate(delta);
-                else notices.SetHold("");
+                GameHooks.EveningUpdate(delta);
                 return;
             }
             if (awaitingMorningReport)
@@ -180,7 +179,9 @@ public sealed partial class Plugin : MelonMod
             if (TimersHeld || GameHooks.Busy)
                 frame = frame with { Suspended = true };
             string holdReason = TimersHeld ? nativeHoldExplanation : suspension;
-            bool announceHold = !TimersHeld && !frame.Suspended && Clock.AdmissionClosed && frame.ClosingBlockers != ClosingBlocker.None;
+            bool announceHold = !TimersHeld && !frame.Suspended && Clock.AdmissionClosed &&
+                (frame.Customer == null || frame.Protected ? !ClosingSafety.Safe(frame.ClosingBlockers)
+                    : !ClosingSafety.SafeToDismiss(frame.ClosingBlockers));
             if (announceHold)
                 holdReason = "Closing waits for a safe point: " + frame.ClosingBlockers + ".";
             notices.SetHold(holdReason, announceHold);
@@ -195,8 +196,9 @@ public sealed partial class Plugin : MelonMod
             {
                 Trace("timeout-dismiss-request customer=" + frame.Customer + "; closingOnly=" + frame.ClosingOnlyDismissal + "; patience=" + Clock.PatienceLeft + "; grace=" + Clock.GraceLeft + "; safe=" + frame.SafeToDismiss);
                 var customer = CaptureBarkCustomer();
-                store.DismissCurrentClient(false, true, true);
-                if (!frame.Protected && customer.Visit != 0 && store.currentClientInstance == null)
+                bool departed = GameHooks.DismissTimedCustomer();
+                if (!departed) Clock.RetryDismissal();
+                if (!frame.Protected && customer.Visit != 0 && departed)
                     CustomerDeparture(customer.Visit, customer.Name);
             }
             if (events.HasFlag(ClockEvent.Close))

@@ -23,5 +23,14 @@ internal static class EveningChecks {
   c.RequestSleep(false);c.CancelSleepRequest();check(!c.SleepRequested&&c.RequestSleep(false),"synchronous native failure can safely retry later");
   c=new ShopClock(new Timing());c.StartDay("9/run/3");c.Advance(300,new ShopFrame());c.ConfirmClosed();
   check(c.MinuteOfDay==600&&c.RequestSleep(false)&&c.PendingWakeMinute==480,"early closure and early sleep never wake before 08");
+  c=new ShopClock(new Timing());c.StartDay("9/run/3");
+  c.Advance(300,new ShopFrame());
+  check(c.DisplayTime=="10:00"&&!c.AdmissionClosed,"pre-opening preparation consumes daytime budget");
+  c.ConfirmClosed();c.AdvanceEvening(150,false);
+  check(c.DisplayTime=="11:00 | Closed","early-closed shop keeps advancing at the daytime rate");
+  var beforePause=c.Capture();c.AdvanceEvening(1000,true);
+  check(c.Capture()==beforePause,"native pause still holds a closed shop");
+  c.AdvanceEvening(1,false);
+  check(c.EveningMinute>660,"closed clock resumes without requiring reopening");
  }
 }

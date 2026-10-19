@@ -99,6 +99,7 @@ internal sealed class ShopClock
     public void CancelSleepRequest() { SleepRequested = false; PendingWakeMinute = 480; }
 
     public void CustomerDeparted() { closingOnlyDismissalRequested = null; ClearCustomer(); }
+    public void RetryDismissal() { dismissalRequested = false; closingOnlyDismissalRequested = null; }
 
     private void ClearCustomer()
     {
@@ -163,7 +164,7 @@ internal sealed class ShopClock
                 result |= ClockEvent.PatienceWarning;
             }
             if ((PatienceLeft == 0 || Phase == Phase.Closing) &&
-                frame.SafeToDismiss && ClosingSafety.Safe(frame.ClosingBlockers) && !dismissalRequested)
+                frame.SafeToDismiss && ClosingSafety.SafeToDismiss(frame.ClosingBlockers) && !dismissalRequested)
             {
                 dismissalRequested = true;
                 result |= ClockEvent.Dismiss;

@@ -1,0 +1,85 @@
+Real-Time Shop 0.2.1-rc.25-recovered - local installation and focused native test
+Test date: 2026-10-18 (America/Los_Angeles)
+
+INSTALLED DLL
+Mods/ProbablyStolen.RealTimeShop.dll in the existing Steam Demo installation.
+SHA-256: 407A6270050333FA1DF66F863A0F960A761DF10FA98C32D1757A4090F9D02F36
+The installed DLL and the DLL exercised in the isolated game are byte-identical.
+The installed game loaded RC.25 at the main menu without a mod initialization error.
+There is exactly one DLL in the normal Mods directory; no QA helper is installed there.
+Normal mod settings remain 30 / 120 / 60, Diagnostics=false.
+
+BUILD AND MANAGED CHECKS
+31,127 managed checks and 38 security assertions pass. Production sources compile
+with zero warnings/errors using bundled Roslyn against the installed .NET 6 and
+game/loader interfaces. Assembly version and .NET 6 target metadata are included.
+The .NET SDK is unavailable on this PC; this is not a standard SDK release build
+or a published release archive.
+
+ISOLATION
+A separate local copy of the licensed game used native Unity company/product
+identities Codex Testing Sandbox / ModTest Sandbox, yielding a separate save and
+settings profile. A test-only loader identity alias allowed the UNMODIFIED
+candidate DLL to load in that copy; its own GameAssembly hash check remained active.
+A separate QA module verified the native profile path before gameplay, blocked
+Steam initialization/restart/stat/achievement calls, and recorded state once per
+second. It did not drive the clock, create customers, accept offers or force sleep.
+Gameplay inputs used the real game window. Existing game options were copied into
+the disposable profile with the user's existing analytics opt-out preserved.
+Test timing was 3 / 20 / 10 to exercise deadlines promptly; installed defaults
+were never changed. Skip Intro, Apprentice, and explicit real-time opt-in were
+selected through the native new-game UI.
+
+OBSERVED RESULTS - PASS
+1. Before opening: shutters remained closed in MORNING and the calendar advanced
+   from 08:01 to 09:41. Opening did not reset the day clock.
+2. Idle trading panel: ordinary seller scavGeneral had the offer panel open,
+   native safety classified it as TradePanel, and patience counted down. At zero,
+   native panel cancellation and native dismissal ran once. The panel closed and
+   the visitor left. Cash remained 550; owned newspaper ID 55 remained; the six
+   verified unsold customer goods were removed by native dismissal. No offer was
+   accepted. A second ordinary customer also departed on patience expiry.
+3. Early closure: native EndDay ran before 20:00 (approximately 16:42). With the
+   shutters fully closed the calendar continued through 18:12 and later times.
+4. Pause/resume: the native pause menu held the closed clock at 18:48 for over
+   eighteen recorded seconds. Resume continued time without charging that backlog.
+5. Bedroll screen: it stayed open while evening time advanced from 19:06 through
+   midnight to 03:00. It no longer holds the evening clock.
+6. Automatic sleep: exactly one native sleep request at minute 1620 (03:00), one
+   day transition, and an 11:00 wake on day 2. The morning report held the clock;
+   closing it restored playable morning time. Cash changed 550 -> 545 once for
+   the native power cost. Native overnight events remained active.
+7. Native autosave wrote the day-2 native save plus both sidecars. Timer sidecar
+   records day 2, 11:00 wake (Elapsed=45 at the test rate), and the matching native
+   SHA-256. Save/reload was not separately exercised in this focused session.
+8. No Real-Time Shop runtime error or disable was recorded. Normal native exit
+   completed with process exit code 0. The existing Il2CppInterop signature
+   substitute warning is present; it is not a new mod initialization failure.
+
+PROTECTION AND BACKUP
+All 21 normal native save, sidecar and game-options files checked after testing
+are byte-identical to the pre-install backup. MelonPreferences.cfg is also
+byte-identical. The first test-copy launch was redirected by Steam to the regular
+installation; it was closed at the main menu without loading a campaign. The
+corrected sandbox launch used the explicit test working directory and developer
+App ID file. Subsequent native gameplay ran only in the verified separate profile.
+
+Backup directory (workspace-relative): backups/install-20261019-000939/
+Contains the original RC.24 DLL, mod preferences, complete original save folder
+and file hash manifest. Original DLL SHA-256:
+5564F136DE73FB23CCA44BAB630913A5B70663EDE642EB137CB9F3DF470E3987
+
+PRIVATE LOCAL EVIDENCE (excluded from Git/release archives)
+artifacts/native-test-results.json, timeline.jsonl, isolation.json,
+native-timing-test.log, trading-before-timeout.jpg, trading-after-timeout.jpg,
+closed-clock.jpg, bedroll-clock.jpg, after-automatic-sleep.jpg,
+playable-next-morning.jpg, and QA helper sources under artifacts/native-test/
+and artifacts/native-alias/. The temporary full game copy was removed afterward.
+
+LIMITS
+Focused native coverage of these timing fixes and the described overnight path.
+Selected-item purchases/sales, bargaining rolls, all confirmation/commit races,
+nested ownership combinations, protected visitors, outings, every scripted event,
+save/reload/crash recovery and long campaigns are not exhaustively validated by
+this session. Existing managed safety checks continue to pass. No full-game or
+other-build compatibility, public publication, or blanket acceptance is claimed.

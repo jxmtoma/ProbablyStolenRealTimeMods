@@ -1,6 +1,10 @@
-# Current candidate: user-run installation and acceptance
+# Installation and acceptance
 
-This is a review candidate, not cleared for publication. Nothing below has been run against your installed game. Native gameplay and screenshots remain pending. RC.24 restores the missing RC.22 warning guards and supersedes RC.23. The exact package/DLL hashes are recorded in PACKAGE-CONTENTS.sha256 and SOURCE.txt.
+RC.25 has been installed locally and passed focused native timing tests. See [the installation and test record](release-rc25-native-test.txt) for its hash, backup, isolated test setup and exact coverage. Your normal saves/options and mod preferences were verified unchanged. The existing RC.24 archive does not contain these fixes; the archive-specific instructions below describe that historical package. There is no RC.25 public ZIP yet.
+
+## Historical RC.24 package instructions
+
+The following instructions and original pending-acceptance checklist describe the archived RC.24 review package, not the installed RC.25 DLL. RC.24 restores the missing RC.22 warning guards and supersedes RC.23. Its exact package/DLL hashes are recorded in PACKAGE-CONTENTS.sha256 and SOURCE.txt. Use the RC.25 test record above for current observed results.
 
 ## Confirm before changing anything
 
@@ -28,7 +32,8 @@ This is a review candidate, not cleared for publication. Nothing below has been 
 | Check | Pass condition |
 |---|---|
 | Clock/dialogue/menu/focus | Calendar advances with active time; actual native dialogue, pause/options and focus loss hold timers, with no catch-up after resume. |
-| Trading | Time continues with trade panels open when there is no native dialogue; unsafe dismissal/closure waits. Verify purchased/owned/nested items and money against the native transaction result. |
+| Trading | Time continues with trade panels open when there is no native dialogue. An ordinary customer cancels an idle offer/bargaining panel and leaves at patience expiry or closing time; confirmations, commits, dragging and protected visits still defer departure. Verify no deal is accepted by cancellation and purchased/owned/nested items and money match the native result. |
+| Closed clock | Keep shutters closed before opening and after early closure: the calendar keeps advancing. Leave the bedroll screen open and verify evening time continues toward 03:00. Native pause/dialogue/morning reports still hold time. |
 | Patience | On an ordinary ready customer, check the warning near 30 seconds remaining (default 120-second patience). Record typing and actual readability: policy provides six fully readable seconds, capped at fifteen seconds wall age. Speech clears when that customer's visual leaves and never transfers to the next visitor. |
 | Warning edge cases | No warning on a protected visit or inappropriate warning on a dismissal frame. RC.24 restores these guards; a normal playthrough alone cannot prove all edge cases. |
 | Early closure | Close before 20:00, use the native bedroll and enabled sleep button, advance the native day exactly once and reach a playable next morning. |

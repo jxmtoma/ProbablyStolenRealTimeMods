@@ -1,3 +1,23 @@
+0.2.1-rc.25-recovered - local installed candidate (2026-10-18)
+
+Ordinary customers now cancel idle offer/bargaining panels and leave when
+patience expires or closing time arrives. Confirmations, active trade commits,
+dragging, unknown item ownership and protected visits still defer departure.
+Recheck native safety after panel cancellation and retry a deferred dismissal.
+
+Closed shutters no longer stop daytime preparation. Closed-day evening time
+also continues while the native bedroll screen is open. Native pause, dialogue,
+morning reports and protected transitions retain their existing timer holds.
+31,127 managed checks and 38 security assertions pass using bundled Roslyn;
+production sources compile against installed .NET 6/game interfaces with zero
+warnings/errors. The SDK is unavailable here; no standard SDK release build
+or public package is claimed. Installed the resulting DLL and passed focused
+native timing tests in a verified isolated profile, including open-offer timeout,
+closed/bedroll clock progress, pause/resume, automatic 03:00 sleep, one native
+day advance and an 11:00 playable next morning. Normal saves/options and mod
+preferences remain byte-identical. See release-rc25-native-test.txt for the
+installed hash, backup, exact coverage and remaining limits.
+
 0.2.1-rc.24-recovered - local review candidate (2026-10-18)
 
 Supersedes RC.23. Restore RC.22's explicit patience-warning guards: the event

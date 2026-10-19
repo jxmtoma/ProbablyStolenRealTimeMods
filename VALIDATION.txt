@@ -1,3 +1,11 @@
+RC.25 UPDATE - local installation and focused native timing tests, 2026-10-18
+31,127 managed checks and 38 security assertions pass. Zero-warning/error
+compilation with bundled Roslyn against installed .NET 6/game interfaces.
+The exact installed DLL passed the isolated native scenarios in
+release-rc25-native-test.txt. Normal saves/options and mod preferences were
+verified byte-identical to backup. Broader acceptance and release packaging
+remain pending. The record below is historical RC.24 preparation evidence.
+
 Real-Time Shop 0.2.1-rc.24-recovered - preparation checks, 2026-10-18
 STATUS: LOCAL REVIEW CANDIDATE. Native gameplay acceptance is pending.
 

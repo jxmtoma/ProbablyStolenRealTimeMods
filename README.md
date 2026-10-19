@@ -1,10 +1,14 @@
-# Real-Time Shop 0.2.1-rc.24-recovered
+# Real-Time Shop 0.2.1-rc.25-recovered
 
-**Local review candidate; native gameplay acceptance is pending.** This revision reconstructs the missing RC.22 functionality from the preserved MIT-licensed mod binary, then disables routine release diagnostics. It is a new reproducible build, not the original RC.22 binary. See [RECOVERY.md](RECOVERY.md) for provenance and intentional differences.
+Ordinary customers cancel idle trading panels when their patience expires or closing time arrives. The clock continues with the shutters closed and on the bedroll screen. Confirmations, trade commits, protected visits and normal pause/dialogue holds remain guarded.
+
+RC.25 is installed locally and passed focused native timing tests in an isolated profile, plus 31,127 managed checks and 38 security assertions. See [the installation and native test record](release-rc25-native-test.txt) for the exact DLL hash, backup, methods and limits. No RC.25 public release archive has been prepared. Existing RC.24 archive hashes describe that historical candidate.
+
+This candidate includes the RC.24 reconstruction of missing RC.22 functionality from the preserved MIT-licensed mod binary, with routine diagnostics disabled by default. See [RECOVERY.md](RECOVERY.md) for reconstruction provenance and intentional differences. RC.25's timing changes intentionally differ from the historical RC.22 behavior.
 
 RC.24 supersedes RC.23 and restores its missing dismissal/protected-frame warning guards. See [RECOVERY-FIDELITY-REVIEW.md](RECOVERY-FIDELITY-REVIEW.md) for the remaining method review and [USER-INSTALL-AND-ACCEPTANCE.md](USER-INSTALL-AND-ACCEPTANCE.md) for user-run testing and rollback.
 
-The exact RC.24 archive/source hashes and validation status are retained in [the release provenance record](releases/0.2.1-rc.24-recovered/PROVENANCE.md). Main includes the recovered source, focused checks and reproducible tooling. Later documentation commits do not re-version or replace the already verified RC.24 archives. Native gameplay acceptance is still pending; a verified file installation is not a gameplay pass.
+The exact historical RC.24 archive/source hashes and validation status are retained in [the release provenance record](releases/0.2.1-rc.24-recovered/PROVENANCE.md). RC.25 does not replace those historical archives. Its focused native timing tests do not constitute exhaustive gameplay acceptance.
 
 An unofficial, opt-in real-time shop clock and after-hours sleep schedule for Probably Stolen's Windows Demo. Original mod code is MIT licensed, including commercial reuse.
 
@@ -27,7 +31,7 @@ Deterministic release compilation uses `ContinuousIntegrationBuild`, no PDB, and
 
 ## Validation
 
-The public checks exercise clock, consent, closing, sleep, speech and security policies with synthetic inputs. They do not run native gameplay. This candidate passed 24,957 ordinary managed checks and 38 security assertions. With the private RC.22 fixture, 165,008 total managed assertions passed. An independent IL review passed 512 reference warning-predicate comparisons and verified the compiled production wiring. Fresh isolated native acceptance and screenshots are still pending. Historical native results apply only to their original binaries. See [VALIDATION.txt](VALIDATION.txt) and [NEXUS-DRAFT.md](NEXUS-DRAFT.md).
+The public checks exercise clock, consent, closing, sleep, speech and security policies with synthetic inputs. RC.25 passed 31,127 managed checks, 38 security assertions and the focused native timing scenarios recorded in [the test report](release-rc25-native-test.txt). RC.24's private fixture comparisons and warning-predicate IL review remain historical evidence for that binary. Broader native acceptance and public release preparation remain pending. See [VALIDATION.txt](VALIDATION.txt).
 
 ## Conduct and privacy
 

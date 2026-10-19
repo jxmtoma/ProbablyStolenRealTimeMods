@@ -188,8 +188,9 @@ for(int mask=0;mask<64;mask++)
     bool held=NegotiationSafety.Held(nf);
     Check(held!=(mask==49),"negotiation states fail closed except known hidden quiet weighing selection");
     var ordinary=Fresh();
-    var frame=shopper with {ClosingBlockers=held?ClosingBlocker.Negotiation:ClosingBlocker.None};
-    Check(ordinary.Advance(1800,frame).HasFlag(ClockEvent.Dismiss)==!held,"native negotiation facts gate ordinary cutoff");
+    var frame=shopper with {ClosingBlockers=NegotiationSafety.Blocker(nf)};
+    Check(ordinary.Advance(1800,frame).HasFlag(ClockEvent.Dismiss)==(mask is 49 or 51 or 57 or 59),
+        "ordinary cutoff cancels known quiet offers but retains confirmation, unknown selection and native work");
     var protectedClock=Fresh();
     Check(!protectedClock.Advance(1800,frame with {Protected=true}).HasFlag(ClockEvent.Dismiss),"protected visitor retained even if stale selection is safe");
 }
@@ -363,8 +364,8 @@ Check(diagnostic.Observe(observation with {Elapsed=14})==null,"per-frame telemet
 Check(diagnostic.Observe(observation with {Elapsed=15})!=null,"fifteen second countdown telemetry");
 Check(diagnostic.Observe(observation with {Protected=true})!=null,"classification/frame transition telemetry");
 Check(diagnostic.Take() && diagnostic.Take() && !diagnostic.Take(),"telemetry emission cap");
-// Every combination of native safety blockers must prevent destructive closing work.
-for (int mask=0; mask<1024; mask++)
+// Idle trade panels permit ordinary cancellation; every other safety blocker still applies.
+for (int mask=0; mask<2048; mask++)
 {
     var blockers=(ClosingBlocker)mask;
     var candidate=Fresh();candidate.Advance(1799,empty);
@@ -373,8 +374,8 @@ for (int mask=0; mask<1024; mask++)
     var idleCandidate=Fresh();
     Check(idleCandidate.Advance(1800,new ShopFrame(CanClose:true,ClosingBlockers:blockers)).HasFlag(ClockEvent.Close)==(mask==0),"idle closure respects every safety blocker");
     Check(candidate.AdmissionClosed && candidate.DisplayTime=="20:00", "cutoff independent of transaction safety");
-    Check(result.HasFlag(ClockEvent.Dismiss)==(mask==0), "all safety combinations gate closing dismissal");
-    if(mask!=0)
+    Check(result.HasFlag(ClockEvent.Dismiss)==(mask is 0 or 1024), "all safety combinations gate closing dismissal");
+    if(mask is not (0 or 1024))
     {
         Check(!candidate.Advance(3600,atCutoff).HasFlag(ClockEvent.Dismiss),"unsafe closing never forces a timeout");
         Check(candidate.Advance(0,shopper).HasFlag(ClockEvent.Dismiss),"safe point releases delayed closing immediately");
@@ -516,6 +517,7 @@ foreach (bool protectedVisit in new[] { false, true })
     }
 }
 PatrolClosingChecks.Run(Check,Near);
+TradingChecks.Run(Check);
 EveningChecks.Run(Check);
 RecoveryChecks.Run(Check);
 Console.WriteLine($"PASS: {count} checks; native item/money preservation still needs runtime validation.");
