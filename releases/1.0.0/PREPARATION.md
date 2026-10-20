@@ -19,7 +19,7 @@ The standard `Build.ps1 -Rebuild` succeeds with zero warnings and errors. `Test.
 
 Release toolchain: Windows, PowerShell 7.6.5 / .NET 10.0.11, SDK **10.0.401**, and .NET **6.0.36** reference packages. `global.json` pins the SDK without roll-forward. The workspace-local SDK archive was downloaded from Microsoft's release distribution and matched its published SHA-512. Reference packages were restored from NuGet and cached locally. No machine-wide SDK installation is required by this preparation.
 
-Build references are the separately installed supported demo, MelonLoader 0.7.3, HarmonyX 2.10.2 and Il2CppInterop.Runtime 1.5.1-ci.845, with exact dependency hashes in [DEPENDENCY-HASHES.json](../../DEPENDENCY-HASHES.json). The mod targets .NET 6; check programs target .NET 10. Release compilation is deterministic, without PDB or Git informational-version suffix, with a source path map.
+Build references are the separately installed supported demo, MelonLoader 0.7.3, HarmonyX 2.10.2 and Il2CppInterop.Runtime 1.5.1-ci.845, with exact dependency hashes in [DEPENDENCY-HASHES.json](DEPENDENCY-HASHES.json). The mod targets .NET 6; check programs target .NET 10. Release compilation is deterministic, without PDB or Git informational-version suffix, with a source path map.
 
 ```powershell
 ./Build.ps1 -GameDir '<supported demo directory>' -Rebuild

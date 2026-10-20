@@ -1,3 +1,18 @@
+1.0.1 - demo compatibility update (2026-10-20)
+
+Recognize updated Windows Steam Demo build 26017150 while retaining the
+previous build 25382790. Keep exact GameAssembly hash checks, Windows-only
+support and MelonLoader 0.7.3 enforcement. Rebuild against regenerated interop;
+timing, consent/save formats, gameplay hooks and defaults are unchanged.
+31,133 managed checks and 38 security assertions pass; all 339 referenced
+game/Unity members resolve. Add compatibility boundary regressions and a
+repeatable read-only interop verification tool. Focused native checks pass:
+explicit opt-in, save/restore, pause, idle trade timeout, automatic closing,
+evening/bedroll time, one 03:00 sleep, 11:00 wake and overnight autosave reload.
+Install the exact tested DLL locally with rollback backup; preserve normal
+campaign saves and preferences. No public release has been created.
+See RELEASE-NOTES-1.0.1.md and releases/1.0.1/COMPATIBILITY.md.
+
 1.0.0 - release preparation (2026-10-18)
 
 Promote the tested RC.25 timing behavior to version 1.0.0. Version metadata,

@@ -1,0 +1,15 @@
+{
+  "referenceSha256": "27A568AE67C434B392FB674D5D0B5DEB9124258886E266D3D2D465324552ED70",
+  "candidateSha256": "E3F56BB1FF367AE2EBE9B97124BC6AB373D14CBF69EE297D154054BB04843250",
+  "comparedExistingMethods": 653,
+  "unchangedBodies": 652,
+  "changedBodies": [
+    "System.Void RealTimeShop.Plugin::OnInitializeMelon()"
+  ],
+  "addedMethods": [
+    "System.Boolean RealTimeShop.GameCompatibility::Supports(System.Boolean,System.String)"
+  ],
+  "missingMethods": [],
+  "expectedDifferencesVerified": true,
+  "scope": "All other mod method bodies match 1.0.0 after normalization. Initialization changes version text, compatibility guard and diagnostic message. Added pure guard accepts exactly two known Windows binaries. Does not establish updated native game semantics."
+}

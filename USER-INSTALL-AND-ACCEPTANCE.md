@@ -1,5 +1,13 @@
 # Installation and acceptance
 
+## 1.0.1 compatibility update for the updated demo
+
+Build **26017150 / 050rev5-L** is now recognized alongside the previous **25382790**. Use the 1.0.1 DLL; the historical 1.0.0 package rejects the updated game. Build/managed/interop and focused isolated native checks pass, including opt-in, save/restore, pause, idle trade timeout, closing, evening time, 03:00 sleep and next-morning reload. The exact tested DLL is installed locally with preferences preserved and a rollback backup. See [release notes](RELEASE-NOTES-1.0.1.md), [native test scope](releases/1.0.1/NATIVE-TESTS.md) and [the evidence record](releases/1.0.1/COMPATIBILITY.md). Broader gameplay acceptance remains limited to those recorded cases.
+
+Close the game and preserve a matched backup of the native save folder with both sidecars, mod DLL and preferences. With MelonLoader 0.7.3, install only `Mods/ProbablyStolen.RealTimeShop.dll`, keeping one copy. Use an isolated disposable save first. Confirm the loader identifies **1.0.1** without disabling the mod. Check the new-game choice defaults off, then verify explicit opt-in, matched save/timer restore, native save, idle trade timeout, closing and sleep using the acceptance table below. Record these as new-build results; older native results do not establish a pass. Keep defaults **30 / 120 / 60**, diagnostics off. Roll back to the matched backup if any check fails.
+
+The remaining package-specific sections below are historical instructions for 1.0.0 / RC.24 / RC.25 and their older game build.
+
 ## Prepared 1.0.0 package
 
 Use `RealTimeShop-1.0.0.zip` for installation; the `-source.zip` archive is for rebuilding. Check its hash against SHA256SUMS.txt and the DLL against the package's SOURCE.txt. The supported demo and prerequisites below still apply. Close the game and back up the entire native save folder with both sidecars, current mod DLL and mod preferences. Install only `Mods/ProbablyStolen.RealTimeShop.dll` and retain one copy. Confirm the loader identifies **1.0.0**, then use a disposable real-time save first. Existing vanilla saves stay vanilla. Defaults remain **30 / 120 / 60**, with diagnostics off.

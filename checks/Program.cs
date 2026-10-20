@@ -7,6 +7,11 @@ void Check(bool condition, string description)
     count++;
 }
 void Near(double actual, double expected, string description) => Check(Math.Abs(actual - expected) < 0.00001, description);
+Check(GameCompatibility.Supports(true, "A2CAA0CECBF197CCD6B12DDEC7BB9E6FA0BC2CD2A5C52ABEF627AA919E2B9BFD"), "updated demo build 26017150 accepted");
+Check(GameCompatibility.Supports(true, "3BEA17EEEC77ADAB6418918C28A8AA9A06F290582A2972639A48BD7E5A01AB44"), "previous demo build 25382790 retained");
+foreach (string hash in new[] { "", new string('0', 64), GameCompatibility.CurrentGameAssemblySha256[..63] + "E" })
+    Check(!GameCompatibility.Supports(true, hash), "missing, unknown or changed game binary rejected");
+Check(!GameCompatibility.Supports(false, GameCompatibility.CurrentGameAssemblySha256), "non-Windows rejected even with a known hash");
 ShopClock Fresh(Timing? timing = null)
 {
     var value = new ShopClock(timing ?? new Timing());

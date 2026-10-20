@@ -6,7 +6,7 @@ using MelonLoader;
 using MelonLoader.Utils;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(RealTimeShop.Plugin), "Real-Time Shop", "1.0.0", "ProbablyStolenMods")]
+[assembly: MelonInfo(typeof(RealTimeShop.Plugin), "Real-Time Shop", "1.0.1", "ProbablyStolenMods")]
 [assembly: MelonGame("Questing Goose Studio", "Probably Stolen")]
 
 namespace RealTimeShop;
@@ -49,8 +49,8 @@ public sealed partial class Plugin : MelonMod
             using var stream = File.OpenRead(gameAssembly);
             using var sha = SHA256.Create();
             string hash = Convert.ToHexString(sha.ComputeHash(stream));
-            if (!OperatingSystem.IsWindows() || hash != "3BEA17EEEC77ADAB6418918C28A8AA9A06F290582A2972639A48BD7E5A01AB44")
-                throw new NotSupportedException("This mod targets only the verified Windows Demo GameAssembly.dll (SHA-256 3BEA17EE...E01AB44).");
+            if (!GameCompatibility.Supports(OperatingSystem.IsWindows(), hash))
+                throw new NotSupportedException("This mod targets Windows Demo builds 25382790 and 26017150. Unsupported GameAssembly.dll SHA-256: " + hash);
             var version = typeof(MelonMod).Assembly.GetName().Version;
             if (version == null || version.Major != 0 || version.Minor != 7 || version.Build != 3)
                 throw new NotSupportedException("MelonLoader 0.7.3 is required for this build.");
@@ -62,7 +62,7 @@ public sealed partial class Plugin : MelonMod
             Enabled = true;
             LogChoice("Installed capability; real time defaults OFF. Enable only at new-game creation.");
             Rebase();
-            LoggerInstance.Msg("Real-Time Shop 1.0.0 loaded; real time requires new-game opt-in.");
+            LoggerInstance.Msg("Real-Time Shop 1.0.1 loaded; real time requires new-game opt-in.");
         }
         catch (Exception ex) { Disable(ex); }
     }

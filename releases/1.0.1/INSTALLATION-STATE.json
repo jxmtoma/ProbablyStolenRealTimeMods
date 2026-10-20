@@ -1,0 +1,14 @@
+{
+  "installedModVersion": "1.0.1",
+  "installedModSha256": "E3F56BB1FF367AE2EBE9B97124BC6AB373D14CBF69EE297D154054BB04843250",
+  "candidateInstalled": true,
+  "backupRelativePath": "backups/install-1.0.1-20261020-140147",
+  "normalStartupVerified": true,
+  "normalStartupMods": 1,
+  "testHelpersInstalled": false,
+  "normalGameLeftAtMainMenu": true,
+  "normalCampaignLoadedForTesting": false,
+  "normalSaveAndOptionsFilesChecked": 21,
+  "changedNormalSaveAndOptionsFiles": [],
+  "normalModPreferencesUnchanged": true
+}

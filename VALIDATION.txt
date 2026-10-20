@@ -1,3 +1,20 @@
+1.0.1 COMPATIBILITY UPDATE - 2026-10-20
+Target: Windows Steam Demo 4349200, updated public build 26017150.
+Prior build 25382790 remains recognized; other binary hashes fail closed.
+SDK 10.0.401 / .NET 6 reference build: zero warnings/errors.
+31,133 managed checks and 38 security assertions pass. All 339 generated
+game/Unity member references resolve; no recognized unstripping stub found.
+Exact 1.0.1 DLL passes focused isolated native startup, explicit new-game opt-in,
+matched old-save restore/native save, pause, idle wholesale timeout, automatic
+20:00 closing, closed/bedroll clock progression, one 03:00 sleep, 11:00 wake and
+overnight autosave reload. The native 5-credit power cost is charged once.
+Earlier code-53 test launches were resolved with Steam running and local-test
+app ID configuration. Native exit was observed; the external watcher did not
+provide an exit code. Live Steam integration, exhaustive transactions/speech,
+scripted/security/rent variants, mod combinations and campaigns remain unverified.
+1.0.1 is installed locally; normal campaign saves and preferences are preserved.
+See releases/1.0.1/COMPATIBILITY.md and its retained reports for exact evidence.
+
 1.0.0 PREPARATION - 2026-10-18
 Standard SDK 10.0.401 / .NET 6.0.36-reference build: zero warnings/errors.
 31,127 managed checks and 38 security assertions pass. All 653 normalized

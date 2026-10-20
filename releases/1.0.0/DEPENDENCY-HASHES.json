@@ -1,0 +1,87 @@
+[
+  {
+    "reference": "Il2CppAssemblies/Assembly-CSharp-firstpass.dll",
+    "sha256": "987598FC7CBD735DE1B16C1C5599B126C33EC0D526503AA2150DE3960510BAF5",
+    "productVersion": null
+  },
+  {
+    "reference": "Il2CppAssemblies/Assembly-CSharp.dll",
+    "sha256": "7AEB2128E98CAD218952B2C6878FE090EACF168FC97B48253A4819B5440E75A0",
+    "productVersion": null
+  },
+  {
+    "reference": "Il2CppAssemblies/Il2CppFebucci.TextAnimator.Runtime.dll",
+    "sha256": "A258F9664A9101A04FBA16DF440A6A6670F4F683B07C610712DE3A93D5E5BD53",
+    "productVersion": null
+  },
+  {
+    "reference": "Il2CppAssemblies/Il2Cppmscorlib.dll",
+    "sha256": "79E72EBA1840749C5ABF5F627510877FB898BD5291BB828642A514618C4F6C77",
+    "productVersion": null
+  },
+  {
+    "reference": "Il2CppAssemblies/Il2CppSystem.Core.dll",
+    "sha256": "D6B0364347D1D57D1F203E23C2A353F07ABED9A3C690F613FC09E3484F72D42A",
+    "productVersion": null
+  },
+  {
+    "reference": "Il2CppAssemblies/Il2CppSystem.dll",
+    "sha256": "F997BC6C472C2BD0C27C1865A7553E6A71D30A6F69AFC302DE71EC69A7CE549D",
+    "productVersion": null
+  },
+  {
+    "reference": "Il2CppAssemblies/Unity.Localization.dll",
+    "sha256": "81A003C66C9A56C63AD40B1A64DEB16EE0D199AC58AA07BE79065F3C239CFFE5",
+    "productVersion": null
+  },
+  {
+    "reference": "Il2CppAssemblies/Unity.TextMeshPro.dll",
+    "sha256": "BFA289546B6977A6A9DDA9B5ED4FD525B03D182531DB166C92912E929C424B44",
+    "productVersion": null
+  },
+  {
+    "reference": "Il2CppAssemblies/UnityEngine.AudioModule.dll",
+    "sha256": "D5C6583849599DD5A5DEA1B2A51B4E0F0A4C8F12FEB2238ABCA21F09AF7C0600",
+    "productVersion": null
+  },
+  {
+    "reference": "Il2CppAssemblies/UnityEngine.CoreModule.dll",
+    "sha256": "A85DA5F8769D0033FCCE1DE8B135ADA6B64C713CF4CCD9470C0E4FB2AC041840",
+    "productVersion": null
+  },
+  {
+    "reference": "Il2CppAssemblies/UnityEngine.IMGUIModule.dll",
+    "sha256": "3FD2F14869013BBE5EC0018B96063A491489046BE7D79320967EA2060799E2D2",
+    "productVersion": null
+  },
+  {
+    "reference": "Il2CppAssemblies/UnityEngine.InputLegacyModule.dll",
+    "sha256": "592E8E7A9F9459A4E00E37E5EFA35122FB0D7D1E64636A3A8EDF14EA55B1F745",
+    "productVersion": null
+  },
+  {
+    "reference": "Il2CppAssemblies/UnityEngine.UI.dll",
+    "sha256": "ACA30AD3DB406D1FB3286EC95CD071CB179FF5DCC55F71A91456CA55C06D6F73",
+    "productVersion": null
+  },
+  {
+    "reference": "Il2CppAssemblies/UnityEngine.UIModule.dll",
+    "sha256": "85782145DAA50141EB67DA8B4EB326EE2A62FB2826220FB2C458FE1BBDC9B698",
+    "productVersion": null
+  },
+  {
+    "reference": "net6/0Harmony.dll",
+    "sha256": "6C898933B52149E8BCF6722305C7E4D94ADD47C9E53B364096F91721624C0877",
+    "productVersion": "2.10.2"
+  },
+  {
+    "reference": "net6/Il2CppInterop.Runtime.dll",
+    "sha256": "3878CE0BA0C60385F76F2BA37E07AD0EE3649D019703AEC8695DB3402ABEEDD7",
+    "productVersion": "1.5.1-ci.845+f03c8f4ae507d47ea814f3d11d1ec6b0391c1576"
+  },
+  {
+    "reference": "net6/MelonLoader.dll",
+    "sha256": "BDD43DC0F3893C208C95389B863AB61C967AE14204DA0DD8051647E754C8709B",
+    "productVersion": "0.7.3+982ed9981ac5b0619648a2e79bcc02fd8861db33"
+  }
+]

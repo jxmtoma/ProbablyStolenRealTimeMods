@@ -1,10 +1,13 @@
-Real-Time Shop 1.0.0 - PREPARED RELEASE
+Real-Time Shop 1.0.1 - DEMO COMPATIBILITY UPDATE
 
-The standard SDK build passes 31,127 managed checks and 38 security assertions.
-Its 653 normalized mod method bodies match the native-tested RC.25 build.
-The exact 1.0.0 DLL also passes isolated native startup and save/timer restore.
-See RELEASE-NOTES-1.0.0.md, VALIDATION.txt and the source preparation record.
-RC.25's original focused timing tests are retained in release-rc25-native-test.txt.
+Targets updated Steam Demo build 26017150 and retains build 25382790.
+The SDK build passes 31,133 managed checks and 38 security assertions.
+All 339 referenced game/Unity members resolve against the updated interop.
+The exact DLL passes focused isolated native opt-in, save/restore, pause,
+idle-trade timeout, closing, evening time, 03:00 sleep and morning reload checks.
+1.0.1 is installed locally with preferences preserved. No public release has
+been created. See RELEASE-NOTES-1.0.1.md and VALIDATION.txt for coverage limits.
+Historical 1.0.0 / RC.25 native results apply to their recorded older build.
 Read USER-INSTALL-AND-ACCEPTANCE.md for user-run installation and rollback.
 
 Adds an opt-in active-time shop clock to Probably Stolen. Choose Real-time
@@ -38,20 +41,24 @@ closing it resumes time. There is no added fine or patience penalty.
 
 On nights marked by the game's native outing flag, wake remains 08:00 to
 avoid stacking this new delay on the existing native customer penalty.
-The native outing logic is untouched. Short Sleeper has dormant name,
-description and icon content, but is absent from this build's normal
-25-entry starting-perk list. Its native IsShortSleeper check always returns
-false; it is not a confirmed obtainable perk. Full-game availability is
-unverified. The mod does not activate or add it. Outing time still advances;
+The native outing logic is untouched. Short Sleeper was dormant in the
+previous tested build; availability in the update/full game is unverified.
+The mod does not activate or add it. Outing time still advances;
 forced sleep waits until you return safely to the shop.
 
-Compatibility is restricted to the verified Probably Stolen Windows Demo:
-Steam app 4349200, public branch, build 25382790;
-visible in-game version: VERSION 049-Rev5-L;
-internal Unity Application.version: 0.46D (not an older-release label).
+Compatibility is restricted to the Probably Stolen Windows Demo:
+Steam app 4349200, public branch, builds 26017150 and 25382790.
+Build 26017150: compile/managed/interop and focused native checks pass.
+Build 25382790: prior native evidence is recorded for mod 1.0.0 / RC.25.
+Visible versions: 050rev5-L (updated build), 049-Rev5-L (previous build).
+Internal Unity Application.version remains 0.46D in the updated loader log.
 Runtime: Unity 2021.3.45f2, MelonLoader 0.7.3 Open-Beta, .NET 6.
-This release targets the exact native binaries of this installed build.
-Required GameAssembly.dll SHA-256:
+Only these exact native binaries are accepted. Build 26017150:
+GameAssembly.dll SHA-256:
+A2CAA0CECBF197CCD6B12DDEC7BB9E6FA0BC2CD2A5C52ABEF627AA919E2B9BFD
+IL2CPP global-metadata.dat SHA-256:
+8067B2F4EE069FDBA6FB2E051ACF7C465C9A275CDDC8D8CA15B313D9FC54B92C
+Previous build 25382790 GameAssembly.dll SHA-256:
 3BEA17EEEC77ADAB6418918C28A8AA9A06F290582A2972639A48BD7E5A01AB44
 Verified IL2CPP global-metadata.dat SHA-256:
 EFDCA95772FDCE327B51E0C7E8D320E7055917BE5C669DB47C1F7B36389F1F41
@@ -102,7 +109,14 @@ Re-enabling against a native save changed while the mod was absent may not
 restore its previous real-time consent/timing. Avoid overwriting the backup.
 
 VALIDATION / LIMITS
-Version 1.0.0 passes the standard SDK build, managed/security checks and exact-DLL
+1.0.1 has its own focused native checks on build 26017150. A disposable new
+game creates explicit consent and matched sidecars. An older opted-in save
+restores correctly. Idle wholesale timeout removes eight unsold customer items,
+preserves two owned table items and keeps cash at 545. Closing occurs at 20:00;
+03:00 sleep advances one day, wakes at 11:00 and charges native power once
+(545 to 540). The overnight autosave reloads with matched consent/timer state.
+See releases/1.0.1/NATIVE-TESTS.md for test controls, exact scope and limits.
+Historical version 1.0.0 passes the standard SDK build, managed/security checks and exact-DLL
 native startup/save/consent/timer restore smoke check. Normal profile files were
 unchanged. All 653 normalized mod method bodies match native-tested RC.25,
 whose focused timing tests cover idle offer timeout, closed/bedroll time,

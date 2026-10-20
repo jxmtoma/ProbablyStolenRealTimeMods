@@ -2,7 +2,7 @@
 
 **Prepared draft; not published.** Confirm the intended Nexus game/listing and release destination when publication is requested. No Nexus upload, GitHub Release or release tag has been created by this preparation.
 
-Prepared version is **1.0.0**. Its standard SDK build and managed checks pass. The exact DLL passes isolated native startup and matched save/consent/timer restore. All 653 normalized mod method bodies match the native-tested RC.25 timing build, with startup version text normalized. See [the preparation record](releases/1.0.0/PREPARATION.md) for exact coverage and hashes.
+Current prepared version is **1.0.1**, targeting updated demo build **26017150 / 050rev5-L** with build **25382790** retained. Build, **31,133 managed checks**, **38 security assertions** and resolution of **339** game/Unity members pass. Its exact DLL also passes focused isolated native opt-in, save/restore, pause, idle-trade timeout, closing, evening/bedroll time, 03:00 sleep and next-morning reload checks. See [the compatibility record](releases/1.0.1/COMPATIBILITY.md) and [native test scope](releases/1.0.1/NATIVE-TESTS.md). Historical 1.0.0/RC.25 evidence below remains specific to its older binaries.
 
 ## Title
 
@@ -24,7 +24,7 @@ Version **1.0.0** retains the reconstructed RC.22 additions and the RC.25 timing
 
 ## Requirements and build caveats
 
-- Windows Probably Stolen **Steam Demo app 4349200**, public build **25382790**, visible **049-Rev5-L**; internal Unity version **0.46D**, engine 2021.3.45f2.
+- Windows Probably Stolen **Steam Demo app 4349200**, public build **26017150 / 050rev5-L**, with **25382790 / 049-Rev5-L** retained. Internal Unity version **0.46D**, engine 2021.3.45f2. Focused native checks apply to the recorded cases.
 - **MelonLoader 0.7.3** and its .NET 6 prerequisites, obtained separately. HarmonyX 2.10.2 and Il2CppInterop.Runtime 1.5.1-ci.845 are the installed reference versions.
 - The GameAssembly hash is pinned in README.txt and checked at startup. Full game, other builds/platforms/loaders and mod combinations are unverified.
 - No game, runtime, loader or generated interop files are included. This is a MelonLoader `Mods` installation, not a native `IMod/manifest.xml` package.

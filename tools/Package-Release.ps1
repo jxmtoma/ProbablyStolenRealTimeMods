@@ -15,14 +15,24 @@ if($LASTEXITCODE){throw 'Tracked source must match SourceCommit before packaging
 [xml]$project=Get-Content -Raw -LiteralPath (Join-Path $source 'src/RealTimeShop/RealTimeShop.csproj')
 $version=[string]$project.Project.PropertyGroup.Version
 if($version -notmatch '^\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$'){throw 'Invalid project version'}
+$releaseNotes="RELEASE-NOTES-$version.md"
+if(!(Test-Path -LiteralPath (Join-Path $source $releaseNotes))){throw "Missing release notes: $releaseNotes"}
 if([Diagnostics.FileVersionInfo]::GetVersionInfo([IO.Path]::GetFullPath($DllPath)).ProductVersion -ne $version){throw 'DLL/project version mismatch'}
 $stage=Join-Path $out 'player-staging'
 New-Item -ItemType Directory -Path "$stage/Mods","$stage/licenses","$out/verification" -Force | Out-Null
 Copy-Item -LiteralPath $DllPath -Destination "$stage/Mods/ProbablyStolen.RealTimeShop.dll"
-foreach($name in @('README.txt','CHANGELOG.txt','DEPENDENCIES.txt','DEPENDENCY-HASHES.json','LICENSE.txt','LICENSE-NOTICE.txt','VALIDATION.txt','RECOVERY.md','RELEASE-NOTES-1.0.0.md','USER-INSTALL-AND-ACCEPTANCE.md','RealTimeShop.cfg.example')){
+foreach($name in @('README.txt','CHANGELOG.txt','DEPENDENCIES.txt','DEPENDENCY-HASHES.json','LICENSE.txt','LICENSE-NOTICE.txt','VALIDATION.txt','RECOVERY.md',$releaseNotes,'USER-INSTALL-AND-ACCEPTANCE.md','RealTimeShop.cfg.example')){
  Copy-Item -LiteralPath (Join-Path $source $name) -Destination (Join-Path $stage $name)
 }
 Get-ChildItem -LiteralPath "$source/licenses" -Filter '*.txt' -File | ForEach-Object {Copy-Item -LiteralPath $_.FullName -Destination "$stage/licenses/$($_.Name)"}
+foreach($name in @('COMPATIBILITY.md','NATIVE-TESTS.md','INTEROP-VERIFICATION.json','NATIVE-SMOKE.json','METHOD-COMPARISON.json','INSTALLATION-STATE.json')){
+ $record=Join-Path $source "releases/$version/$name"
+ if(Test-Path -LiteralPath $record){
+  $recordStage=Join-Path $stage "releases/$version"
+  New-Item -ItemType Directory -Path $recordStage -Force | Out-Null
+  Copy-Item -LiteralPath $record -Destination (Join-Path $recordStage $name)
+ }
+}
 $utf8=[Text.UTF8Encoding]::new($false)
 $provenance=@"
 PREPARED RELEASE - NOT PUBLISHED
@@ -32,9 +42,9 @@ Source commit: $SourceCommit
 DLL SHA-256: $($ExpectedDllSha256.ToUpperInvariant())
 
 This is reconstructed source and a new build, not the historical RC.22 DLL.
-Read VALIDATION.txt, RELEASE-NOTES-1.0.0.md and README.txt for validation scope.
-RC.25 native results apply to its recorded binary; consult the 1.0.0 preparation
-record for this build. No blanket gameplay acceptance is claimed.
+Read VALIDATION.txt, $releaseNotes and README.txt for validation scope.
+Historical native results apply only to their recorded mod/game binaries;
+consult this version's evidence record. No blanket gameplay acceptance is claimed.
 
 Rebuild from the matching source archive using Windows PowerShell, SDK
 10.0.401 (global.json), .NET 6.0.36 reference packages, the dependency versions/hashes

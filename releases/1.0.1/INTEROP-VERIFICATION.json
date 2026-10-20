@@ -1,0 +1,10 @@
+{
+  "dllSha256": "E3F56BB1FF367AE2EBE9B97124BC6AB373D14CBF69EE297D154054BB04843250",
+  "gameAssemblySha256": "A2CAA0CECBF197CCD6B12DDEC7BB9E6FA0BC2CD2A5C52ABEF627AA919E2B9BFD",
+  "metadataSha256": "8067B2F4EE069FDBA6FB2E051ACF7C465C9A275CDDC8D8CA15B313D9FC54B92C",
+  "referencedMembers": 339,
+  "resolvedMembers": 339,
+  "failures": [],
+  "passed": true,
+  "methodology": "Read-only Cecil resolution of all mod member references into generated game/Unity assemblies, including compiler-generated code. Reject known unstripping/unsupported stub text. Does not execute native methods, verify their semantics or replace gameplay testing."
+}

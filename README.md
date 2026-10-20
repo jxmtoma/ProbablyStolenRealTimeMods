@@ -1,8 +1,10 @@
-# Real-Time Shop 1.0.0
+# Real-Time Shop 1.0.1
 
 Ordinary customers cancel idle trading panels when their patience expires or closing time arrives. The clock continues with the shutters closed and on the bedroll screen. Confirmations, trade commits, protected visits and normal pause/dialogue holds remain guarded.
 
-Version 1.0.0 is prepared for release. The standard SDK build passes 31,127 managed checks and 38 security assertions. Its 653 normalized mod method bodies match the native-tested RC.25 build, with startup version text normalized. The exact 1.0.0 binary also passes isolated native startup and matched save/consent/timer restore checks. See [release notes](RELEASE-NOTES-1.0.0.md) and [the preparation record](releases/1.0.0/PREPARATION.md) for hashes, packages and validation scope. No tag or public release has been created.
+Version 1.0.1 supports the updated demo, Steam build **26017150**. It builds with zero warnings/errors, passes **31,133 managed checks and 38 security assertions**, and resolves all **339** referenced game/Unity members. The exact DLL passes focused isolated native checks for new-game opt-in, save/consent/timer restore, idle-trade timeout, pause, automatic closing, evening time, 03:00 sleep and next-morning reload. Version 1.0.1 is installed locally with preferences preserved; no public release has been created. See [release notes](RELEASE-NOTES-1.0.1.md) and [the compatibility record](releases/1.0.1/COMPATIBILITY.md) for hashes, evidence and limits.
+
+The previous 1.0.0 build's native tests and packages remain documented in [its preparation record](releases/1.0.0/PREPARATION.md). Those results apply to the older game build and do not establish native compatibility with this update.
 
 This version includes the RC.24 reconstruction of missing RC.22 functionality from the preserved MIT-licensed mod binary, with routine diagnostics disabled by default. See [RECOVERY.md](RECOVERY.md) for reconstruction provenance. The timing fixes intentionally differ from the historical RC.22 behavior; [the RC.25 test record](release-rc25-native-test.txt) retains their original native evidence.
 
@@ -12,7 +14,7 @@ The exact historical RC.24 archive/source hashes and validation status are retai
 
 An unofficial, opt-in real-time shop clock and after-hours sleep schedule for Probably Stolen's Windows Demo. Original mod code is MIT licensed, including commercial reuse.
 
-Compatibility is intentionally narrow: Steam Demo app **4349200**, public build **25382790**, visible **049-Rev5-L**. Unity's internal `Application.version` is **0.46D** for those same tested binaries. Other builds and the full game are not certified. The mod disables itself when its GameAssembly hash or MelonLoader version checks fail.
+Compatibility is intentionally narrow: Windows Steam Demo app **4349200**, updated public build **26017150**, visible **050rev5-L**, with the previous build **25382790** / **049-Rev5-L** retained. MelonLoader reports internal Unity `Application.version` **0.46D** for both builds. The mod accepts only their exact GameAssembly hashes and MelonLoader 0.7.3; unknown builds still disable the mod. The full game remains unsupported.
 
 Read [README.txt](README.txt) before installation for save backups, timing, economy effects, conflicts, uninstall and coverage limits. Install the compiled mod through **MelonLoader 0.7.3**, using the game's `Mods` folder. This is not a native `IMod`/`manifest.xml` package.
 
@@ -23,6 +25,7 @@ Use Windows, PowerShell, the .NET SDK 10.0.401 (release build toolchain), and th
 ```powershell
 ./Build.ps1 -GameDir 'D:/SteamLibrary/steamapps/common/Probably Stolen Demo'
 ./Test.ps1
+./tools/Verify-GameInterop.ps1 -GameDir 'D:/SteamLibrary/steamapps/common/Probably Stolen Demo' -DllPath './src/RealTimeShop/bin/Release/net6.0/ProbablyStolen.RealTimeShop.dll' -ReportPath './interop-verification.json'
 ```
 
 Building reads dependency references and writes only local `bin`/`obj` outputs. It does not install the mod or launch the game. Output: `src/RealTimeShop/bin/Release/net6.0/ProbablyStolen.RealTimeShop.dll`. All runtime references use `Private=false`. To supply references separately, build the project with `-p:LoaderDir=... -p:InteropDir=...`.
@@ -31,7 +34,7 @@ Deterministic release compilation uses `ContinuousIntegrationBuild`, no PDB, and
 
 ## Validation
 
-The public checks exercise clock, consent, closing, sleep, speech and security policies with synthetic inputs. Current results, the exact-binary native smoke check and the relationship to RC.25's focused timing tests are recorded in [the preparation record](releases/1.0.0/PREPARATION.md). Historical fixture/IL reviews apply to their recorded binaries. These checks do not exhaust every transaction, protected event, save/reload failure or long campaign. See [VALIDATION.txt](VALIDATION.txt).
+The public checks exercise compatibility guards, clock, consent, closing, sleep, speech and security policies with synthetic inputs. The interop check resolves generated members without executing game code. Current evidence and focused native coverage are recorded in [the compatibility record](releases/1.0.1/COMPATIBILITY.md). Historical native/fixture/IL reviews apply to their recorded binaries. These checks do not exhaust every transaction, protected event, save/reload failure or long campaign. See [VALIDATION.txt](VALIDATION.txt).
 
 ## Conduct and privacy
 
