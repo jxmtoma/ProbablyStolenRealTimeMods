@@ -1,6 +1,6 @@
 # Nexus listing draft — review only
 
-**Prepared draft; not published.** Confirm the intended Nexus game/listing and release destination when publication is requested. No Nexus upload, GitHub Release or release tag has been created by this preparation.
+The historical draft below informed [the published Nexus listing](https://www.nexusmods.com/probablystolen/mods/608). Version 1.0.1 is also published as [GitHub v1.0.1](https://github.com/jxmtoma/ProbablyStolenRealTimeMods/releases/tag/v1.0.1). Follow [AGENTS.md](AGENTS.md) for future uploads: publish the player mod ZIP and checksums, and link the repository or release tag for source. Do not manually upload source ZIP files.
 
 Current prepared version is **1.0.1**, targeting updated demo build **26017150 / 050rev5-L** with build **25382790** retained. Build, **31,133 managed checks**, **38 security assertions** and resolution of **339** game/Unity members pass. Its exact DLL also passes focused isolated native opt-in, save/restore, pause, idle-trade timeout, closing, evening/bedroll time, 03:00 sleep and next-morning reload checks. See [the compatibility record](releases/1.0.1/COMPATIBILITY.md) and [native test scope](releases/1.0.1/NATIVE-TESTS.md). Historical 1.0.0/RC.25 evidence below remains specific to its older binaries.
 
