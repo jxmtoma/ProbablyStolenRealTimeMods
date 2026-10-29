@@ -1,67 +1,25 @@
-# Nexus listing draft — review only
+# Real-Time Shop 2.0.0 listing draft
 
-The historical draft below informed [the published Nexus listing](https://www.nexusmods.com/probablystolen/mods/608). Version 1.0.1 is also published as [GitHub v1.0.1](https://github.com/jxmtoma/ProbablyStolenRealTimeMods/releases/tag/v1.0.1). Follow [AGENTS.md](AGENTS.md) for future uploads: publish the player mod ZIP and checksums, and link the repository or release tag for source. Do not manually upload source ZIP files.
-
-Current prepared version is **1.0.1**, targeting updated demo build **26017150 / 050rev5-L** with build **25382790** retained. Build, **31,133 managed checks**, **38 security assertions** and resolution of **339** game/Unity members pass. Its exact DLL also passes focused isolated native opt-in, save/restore, pause, idle-trade timeout, closing, evening/bedroll time, 03:00 sleep and next-morning reload checks. See [the compatibility record](releases/1.0.1/COMPATIBILITY.md) and [native test scope](releases/1.0.1/NATIVE-TESTS.md). Historical 1.0.0/RC.25 evidence below remains specific to its older binaries.
-
-## Title
-
-Real-Time Shop - Real-Time Days and Customer Patience
+Release listing text for the existing [Nexus listing](https://www.nexusmods.com/probablystolen/mods/608).
 
 ## Short description
 
-An opt-in shop clock for the Probably Stolen Windows Demo: active-time days, customer patience, safe closing, and after-hours sleep with later wake times.
+Opt-in real-time days, ordinary customer patience, safe shop closing and late sleep for the Windows full release of Probably Stolen. Uses the game's built-in mod loader.
 
 ## Description
 
-Choose **Real-time mode** when creating a new game. It defaults off. The calendar shows your shop clock, with a default 30 active minutes from 08:00 to 20:00 and 120 seconds of ordinary customer patience. Idle trading panels are cancelled when an ordinary customer times out; confirmations, active trade commits and other unsafe work still defer departure. Native dialogue, pause menus, focus loss and protected transitions hold timers.
+Choose **Real-time mode** on the new-game **Difficulty** screen. It defaults off. The calendar shows the shop clock: by default 30 active minutes from 08:00 to 20:00, with 120 seconds of ordinary customer patience. Idle trade panels can cancel at timeout; confirmations, commits, dragging and protected visits retain their guards. Native dialogue, pause/options, focus loss and transitions hold time.
 
-Customer patience speech uses localized text and the game's presentation references. The recovered policy allows six fully readable seconds after typing, bounded by fifteen seconds of wall time, and clears the line when the customer visual leaves. Native rendering and perceived readability still require the pending gameplay check.
+Time continues behind closed shutters and on the bedroll screen. Safe native sleep at 03:00 can delay tomorrow's opening to 11:00; closing remains 20:00. Native overnight expenses, rent, security and outing rules remain in charge. Timing changes can affect trading opportunities and income.
 
-Time continues after closing. Sleep through the native bedroll and sleep screen; late sleep moves the next opening as late as 11:00 while closing remains 20:00. Native overnight costs, rent, security and protected interactions retain control. No forced sleep bypasses native disabled controls. Timed departures and shorter late-start days can affect trading opportunities and income.
+Version 2.0.0 ports the demo mod to Mono and the native mod loader. The tested target is Windows Steam app **4348910**, build **26284217 / VERSION 100-Rev3**. Internal version 0.46D is shared with older builds; compatibility uses the exact managed game assembly hash. Unknown binaries disable the mod. The old demo requires the separately retained 1.0.1 release.
 
-Version **1.0.0** retains the reconstructed RC.22 additions and the RC.25 timing fixes. Focused RC.25 native tests cover idle-offer timeout, closed and bedroll time, pause/resume, automatic 03:00 sleep and an 11:00 next morning. The 1.0.0 binary has its own startup/save restore smoke check. Coverage remains limited: every transaction, scripted visitor, recovery path and long campaign is not exhaustively tested. Diagnostics default off; useful warnings and errors remain.
+Back up the entire save folder and both realtime sidecars before installation. Extract the player ZIP into the game folder so Mods/RealTimeShop contains manifest.xml and ProbablyStolen.RealTimeShop.dll. Activate Real-Time Shop in the game's Mods menu, review its file/reflection permissions, and restart. Create a disposable save with explicit opt-in first. Existing vanilla saves are not converted.
 
-## Requirements and build caveats
+Use native Mods settings for timing and local diagnostics; restart after changes. To uninstall, close the game and remove the mod folder, or deactivate and restart. Preserve matched native saves and sidecars. Removing the mod does not rewind progress.
 
-- Windows Probably Stolen **Steam Demo app 4349200**, public build **26017150 / 050rev5-L**, with **25382790 / 049-Rev5-L** retained. Internal Unity version **0.46D**, engine 2021.3.45f2. Focused native checks apply to the recorded cases.
-- **MelonLoader 0.7.3** and its .NET 6 prerequisites, obtained separately. HarmonyX 2.10.2 and Il2CppInterop.Runtime 1.5.1-ci.845 are the installed reference versions.
-- The GameAssembly hash is pinned in README.txt and checked at startup. Full game, other builds/platforms/loaders and mod combinations are unverified.
-- No game, runtime, loader or generated interop files are included. This is a MelonLoader `Mods` installation, not a native `IMod/manifest.xml` package.
+Exact validation and limitations: [compatibility record](https://github.com/jxmtoma/ProbablyStolenRealTimeMods/blob/v2.0.0/releases/2.0.0/COMPATIBILITY.md). Historical demo tests apply only to their recorded binaries. No exhaustive campaign, mod-combination or live Steam acceptance is claimed. The mod makes no network requests and transmits no player data. Original mod code is MIT licensed; no game or dependency binaries are included.
 
-## Installation
+## Release assets and source
 
-1. Close the game. Back up the entire save folder, both `.realtime-shop.json` and `.realtime-choice.json` sidecars, current mod DLL and preferences. Keep matched files together.
-2. Obtain MelonLoader 0.7.3 and its prerequisites separately. Start the supported game once so the loader generates interop files.
-3. Extract this archive into the game directory so `Mods/ProbablyStolen.RealTimeShop.dll` lands inside `Mods`. Keep only one copy of this mod. Read README.txt and retain your backup.
-4. Launch normally and explicitly select Real-time mode for a new game. Existing vanilla saves are not converted. Defaults are created in `[RealTimeShop]` in `UserData/MelonPreferences.cfg`; restart after changing them. Merge the example section rather than replacing other mods' settings.
-
-## Uninstallation and rollback
-
-Close the game and move this DLL out of `Mods`. Keep native saves, both sidecars and backups. For rollback, restore the backed-up DLL, configuration and matched native save plus both sidecars from the same backup. A save changed while the mod is absent may no longer match its former consent/timing sidecars. Do not edit sidecar hashes or overwrite your only backup.
-
-## Changelog
-
-- Let ordinary customers cancel idle trading panels and leave on timeout or closing; keep the clock advancing with closed shutters and the bedroll screen open.
-- Promote the tested timing behavior to 1.0.0, pin the build SDK and prepare verified player/source archives with checksums.
-- Restore RC.22 warning suppression on dismissal/protected frames and reference interaction ordering; add focused lifetime regressions and compiled IL dispatch verification.
-- Reconstruct RC.22 speech, Unicode typing, visibility cleanup, nested goods tracking and early closure sleep safeguards into reviewable source.
-- Disable routine debug output by default; keep pause/resume toasts silent and warnings/errors available.
-- Add recovery regression tests, deterministic source/build metadata and current dependency hashes.
-
-## Screenshots — select and label before publication
-
-Genuine local captures exist for RC.25 trading timeout, closed time, bedroll time and the next morning, plus the exact 1.0.0 save-restore smoke check. Keep their original version/hash captions; RC.25 imagery must not be labelled as an exact 1.0.0 capture. Do not use generated gameplay imagery. Useful listing images include:
-
-1. New-game opt-in control at its default off state.
-2. Calendar clock during an ordinary active day.
-3. Fully typed patience speech with the visible customer (record a timed clip as well).
-4. Trade panel with clock progress and intact items/money.
-5. Native sleep screen after early closure; next morning calendar.
-6. Late sleep and its delayed next morning opening.
-
-Retain originals with candidate DLL hash, exact game build, timestamp and factual captions. No generated gameplay imagery.
-
-## Permissions and support
-
-Original mod source is MIT licensed, including commercial reuse. Dependency notices apply separately; no game rights are granted. The mod makes no network requests. Share version/build and relevant loader errors when reporting issues, removing personal data from logs. Other clock, customer, closing, sleep, save or new-game UI mods may conflict.
+Download **RealTimeShop-2.0.0.zip** and **SHA256SUMS.txt**. [Source and build instructions at tag v2.0.0](https://github.com/jxmtoma/ProbablyStolenRealTimeMods/tree/v2.0.0). Public uploads contain the player ZIP and checksums only; source snapshots and reproducibility records stay local.

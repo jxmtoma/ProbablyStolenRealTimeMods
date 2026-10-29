@@ -2,10 +2,10 @@ namespace RealTimeShop;
 
 internal static class GameCompatibility
 {
-    // Exact Windows Steam Demo binaries; unknown updates must still fail closed.
-    internal const string PreviousGameAssemblySha256 = "3BEA17EEEC77ADAB6418918C28A8AA9A06F290582A2972639A48BD7E5A01AB44"; // 25382790
-    internal const string CurrentGameAssemblySha256 = "A2CAA0CECBF197CCD6B12DDEC7BB9E6FA0BC2CD2A5C52ABEF627AA919E2B9BFD"; // 26017150
+    // Full release now uses Mono. Demo IL2CPP binaries require the old 1.0.1 mod.
+    internal const string PreviousGameAssemblySha256 = "52F11980B737F10315723FD6EA09AC49C033A7044978DC1CEFAC0137BA93E556"; // 26274380
+    internal const string CurrentGameAssemblySha256 = "0FD3DE05D961C8A415758F8F78A8E0A32692B8B45FB34350DF885ED8BD5E8EB0"; // 26284217
 
     internal static bool Supports(bool windows, string gameAssemblySha256) => windows &&
-        (gameAssemblySha256 == PreviousGameAssemblySha256 || gameAssemblySha256 == CurrentGameAssemblySha256);
+        (gameAssemblySha256 == CurrentGameAssemblySha256 || gameAssemblySha256 == PreviousGameAssemblySha256);
 }

@@ -1,7 +1,5 @@
-using Il2Cpp;
-using Il2CppTMPro;
-using Il2CppInterop.Runtime;
-using Il2CppFebucci.UI.Examples;
+using TMPro;
+using Febucci.UI.Examples;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -39,9 +37,9 @@ internal sealed class CustomerBarkView
             !Usable(dialog.clientNameBubbleImage.rectTransform) || !Usable(dialog.clientNameTMP.rectTransform) ||
             !UsableScale(canvas.transform.lossyScale))
         { Hide("native-layout-unavailable"); return false; }
-        if (root == null || template != source.Pointer.ToInt64() || canvasId != canvas.Pointer.ToInt64())
+        if (root == null || template != source.Id() || canvasId != canvas.Id())
         {
-            Clear(); template = source.Pointer.ToInt64(); canvasId = canvas.Pointer.ToInt64();
+            Clear(); template = source.Id(); canvasId = canvas.Id();
             root = new GameObject("RealTimeShop.CustomerSpeech");
             _ = root.AddComponent<RectTransform>();
             var ownCanvas = root.AddComponent<Canvas>();
@@ -66,11 +64,10 @@ internal sealed class CustomerBarkView
             typing.Start(line, !useTyping ? 0 : writer?.waitForNormalChars ?? 0.03f,
                 !useTyping ? 0 : writer?.waitMiddle ?? 0.15f,
                 !useTyping ? 0 : writer?.waitLong ?? 0.3f,
-                writer?.typewriterPlayerSpeed ?? 1,
+                GameAccess.TypingSpeed(writer),
                 writer?.avoidMultiplePunctuactionWait ?? true, writer?.waitForNewLines ?? false);
-            var soundType = Il2CppType.Of<TAnimSoundWriter>();
             nativeSound = !useTyping ? null :
-                (source.GetComponentInChildren(soundType, true) ?? source.GetComponentInParent(soundType, true))?.TryCast<TAnimSoundWriter>();
+                source.GetComponentInChildren<TAnimSoundWriter>(true) ?? source.GetComponentInParent<TAnimSoundWriter>(true);
             clipIndex = 0; soundWait = 0; label.maxVisibleCharacters = 0;
             root!.transform.SetAsLastSibling();
         }
@@ -84,15 +81,15 @@ internal sealed class CustomerBarkView
     private void PlayTypingSound()
     {
         var source = nativeSound?.source;
-        var clips = nativeSound?.sounds;
+        var clips = nativeSound == null ? null : GameAccess.Sounds(nativeSound);
         if (typingAudio == null || source == null || clips == null || clips.Length == 0 || soundWait > 0) return;
         typingAudio.volume = source.volume; typingAudio.pitch = source.pitch;
         typingAudio.mute = source.mute; typingAudio.outputAudioMixerGroup = source.outputAudioMixerGroup;
         typingAudio.ignoreListenerPause = source.ignoreListenerPause;
         var clip = clips[clipIndex++ % clips.Length];
         if (clip == null) return;
-        if (nativeSound!.interruptPreviousSound) typingAudio.Stop();
-        typingAudio.PlayOneShot(clip); soundWait = Math.Max(0, nativeSound.minSoundDelay);
+        if (GameAccess.Interrupt(nativeSound!)) typingAudio.Stop();
+        typingAudio.PlayOneShot(clip); soundWait = Math.Max(0, GameAccess.SoundDelay(nativeSound!));
     }
     private static bool UsableScale(Vector3 scale) => float.IsFinite(scale.x) && float.IsFinite(scale.y) &&
         float.IsFinite(scale.z) && Math.Abs(scale.x) > 0.0001f && Math.Abs(scale.y) > 0.0001f && Math.Abs(scale.z) > 0.0001f;

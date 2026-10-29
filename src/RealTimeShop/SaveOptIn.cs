@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
-using System.Text.Json;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace RealTimeShop;
 
@@ -44,7 +45,7 @@ internal static class SaveOptInStore
     private sealed record Consent(int Version, string Origin, bool Enabled, int Slot, string Run, string NativeHash);
     internal static string PathFor(string nativeSave) => nativeSave+".realtime-choice.json";
     private static string Hash(string path)
-    { using var file=File.OpenRead(path); using var sha=SHA256.Create(); return Convert.ToHexString(sha.ComputeHash(file)); }
+    { using var file=File.OpenRead(path); using var sha=SHA256.Create(); return SaveEncoding.Hex(sha.ComputeHash(file)); }
     internal static void Write(string nativeSave, int slot, string run, bool explicitlyAuthorized)
     {
         if(!explicitlyAuthorized) throw new InvalidOperationException("No explicit new-game opt-in.");
@@ -52,10 +53,10 @@ internal static class SaveOptInStore
         string path=PathFor(nativeSave),temp=path+"."+Guid.NewGuid().ToString("N")+".tmp";
         try
         {
-            byte[] data=JsonSerializer.SerializeToUtf8Bytes(new Consent(1,Origin,true,slot,run,Hash(nativeSave)));
+            byte[] data=Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new Consent(1,Origin,true,slot,run,Hash(nativeSave))));
             using(var file=new FileStream(temp,FileMode.CreateNew,FileAccess.Write,FileShare.None))
             { file.Write(data); file.Flush(true); }
-            File.Move(temp,path,true);
+            SaveEncoding.Replace(temp,path);
         }
         finally { if(File.Exists(temp)) File.Delete(temp); }
     }
@@ -66,7 +67,7 @@ internal static class SaveOptInStore
             _=SaveIdentity.Key(slot,run,0);
             string path=PathFor(nativeSave);
             if(!File.Exists(path) || new FileInfo(path).Length>4096) return false;
-            var saved=JsonSerializer.Deserialize<Consent>(File.ReadAllText(path));
+            var saved=JsonConvert.DeserializeObject<Consent>(File.ReadAllText(path));
             return saved?.Version==1 && saved.Origin==Origin && saved.Enabled && saved.Slot==slot &&
                 saved.Run==run && saved.NativeHash==Hash(nativeSave);
         }

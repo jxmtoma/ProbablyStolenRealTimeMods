@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Text;
 
 namespace RealTimeShop;
 
@@ -40,7 +39,11 @@ internal sealed class CustomerSpeechTyping
         while (visible < starts.Length && wait <= 0)
         {
             int from = starts[visible], to = visible + 1 < starts.Length ? starts[visible + 1] : text.Length;
-            foreach (Rune unused in text.Substring(from, to - from).EnumerateRunes()) VisibleCharacters++;
+            for (int index = from; index < to; index++)
+            {
+                VisibleCharacters++;
+                if (char.IsHighSurrogate(text[index]) && index + 1 < to && char.IsLowSurrogate(text[index + 1])) index++;
+            }
             char c = text[from]; visible++; changed = true;
             double delay = avoidRepeat && visible < starts.Length && char.IsPunctuation(c) &&
                 char.IsPunctuation(text[starts[visible]]) ? normal :

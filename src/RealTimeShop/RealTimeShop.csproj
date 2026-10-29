@@ -1,28 +1,26 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <!-- Use the licensed game's exact Mono API surface, without copying it to output. -->
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <NoStdLib>true</NoStdLib>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <AssemblyName>ProbablyStolen.RealTimeShop</AssemblyName>
-    <Version>1.0.1</Version>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion><FileVersion>1.0.1.0</FileVersion>
+    <Version>2.0.0</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion><FileVersion>2.0.0.0</FileVersion>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <Deterministic>true</Deterministic><ContinuousIntegrationBuild>true</ContinuousIntegrationBuild><DebugType>none</DebugType><PathMap>$(MSBuildProjectDirectory)=/src/RealTimeShop</PathMap>
-    <LoaderDir Condition="'$(LoaderDir)' == ''">$(GameDir)/MelonLoader/net6</LoaderDir>
-    <InteropDir Condition="'$(InteropDir)' == ''">$(GameDir)/MelonLoader/Il2CppAssemblies</InteropDir>
-    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <ManagedDir Condition="'$(ManagedDir)' == ''">$(GameDir)/Probably Stolen_Data/Managed</ManagedDir>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="$(LoaderDir)/MelonLoader.dll" Private="false" />
-    <Reference Include="$(LoaderDir)/0Harmony.dll" Private="false" />
-    <Reference Include="$(LoaderDir)/Il2CppInterop.Runtime.dll" Private="false" />
-    <Reference Include="$(InteropDir)/UnityEngine.AudioModule.dll;$(InteropDir)/UnityEngine.UIModule.dll;$(InteropDir)/Il2CppFebucci.TextAnimator.Runtime.dll;$(InteropDir)/Unity.Localization.dll" Private="false" />
-    <Reference Include="$(InteropDir)/Assembly-CSharp.dll;$(InteropDir)/Assembly-CSharp-firstpass.dll;$(InteropDir)/Il2Cppmscorlib.dll;$(InteropDir)/Il2CppSystem.dll;$(InteropDir)/Il2CppSystem.Core.dll;$(InteropDir)/UnityEngine.CoreModule.dll;$(InteropDir)/UnityEngine.IMGUIModule.dll;$(InteropDir)/UnityEngine.InputLegacyModule.dll;$(InteropDir)/UnityEngine.UI.dll;$(InteropDir)/Unity.TextMeshPro.dll" Private="false" />
+    <Reference Include="$(ManagedDir)/mscorlib.dll;$(ManagedDir)/netstandard.dll;$(ManagedDir)/System.dll;$(ManagedDir)/System.Core.dll;$(ManagedDir)/0Harmony.dll;$(ManagedDir)/Newtonsoft.Json.dll" Private="false" />
+    <Reference Include="$(ManagedDir)/Assembly-CSharp.dll;$(ManagedDir)/Assembly-CSharp-firstpass.dll;$(ManagedDir)/UnityEngine.AudioModule.dll;$(ManagedDir)/UnityEngine.UIModule.dll;$(ManagedDir)/Febucci.TextAnimator.Runtime.dll;$(ManagedDir)/Unity.Localization.dll;$(ManagedDir)/UnityEngine.CoreModule.dll;$(ManagedDir)/UnityEngine.IMGUIModule.dll;$(ManagedDir)/UnityEngine.InputLegacyModule.dll;$(ManagedDir)/UnityEngine.UI.dll;$(ManagedDir)/Unity.TextMeshPro.dll" Private="false" />
+    <None Include="manifest.xml" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <Target Name="CheckReferences" BeforeTargets="ResolveReferences">
-    <Error Condition="!Exists('$(LoaderDir)/MelonLoader.dll')" Text="Set GameDir to a MelonLoader 0.7.3 game installation, or set LoaderDir and InteropDir separately. See README.md." />
-    <Error Condition="!Exists('$(InteropDir)/Assembly-CSharp.dll')" Text="Game interop assemblies are missing. Launch the game with MelonLoader once on Windows, then supply its Il2CppAssemblies directory as InteropDir." />
+    <Error Condition="!Exists('$(ManagedDir)/Assembly-CSharp.dll')" Text="Set GameDir to the full game's Windows Mono installation, or supply ManagedDir. Demo IL2CPP references are incompatible. See README.md." />
   </Target>
 </Project>
 

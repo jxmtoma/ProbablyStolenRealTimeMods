@@ -1,18 +1,14 @@
 using System.Diagnostics;
 using System.Security.Cryptography;
-using Il2Cpp;
-using Il2CppInterop.Runtime.Injection;
-using MelonLoader;
-using MelonLoader.Utils;
+using HarmonyLib;
 using UnityEngine;
-
-[assembly: MelonInfo(typeof(RealTimeShop.Plugin), "Real-Time Shop", "1.0.1", "ProbablyStolenMods")]
-[assembly: MelonGame("Questing Goose Studio", "Probably Stolen")]
 
 namespace RealTimeShop;
 
-public sealed partial class Plugin : MelonMod
+public sealed partial class Plugin : IMod
 {
+    private readonly Harmony harmony = new("probablystolen.realtime_shop");
+    private ModLog log = null!;
     internal static Plugin? Current;
     internal ShopClock Clock = new(new Timing());
     internal bool Enabled, Paused;
@@ -30,39 +26,38 @@ public sealed partial class Plugin : MelonMod
     private GameObject? watcher;
     private readonly NativePauseAccounting nativePause = new();
     private bool applicationPaused;
-    private readonly Dictionary<int, (Il2CppTMPro.TextMeshProUGUI Label, string Native, string Rendered)> calendarText = new();
+    private readonly Dictionary<int, (TMPro.TextMeshProUGUI Label, string Native, string Rendered)> calendarText = new();
 
-    public override void OnInitializeMelon()
+    public void Init(ModManifest manifest) => log = new ModLog(manifest);
+
+    public void OnEnable()
     {
+        if (Enabled) return;
         Current = this;
         try
         {
-            var category = MelonPreferences.CreateCategory("RealTimeShop");
-            Diagnostics = category.CreateEntry("Diagnostics", false, description: "Optional bounded local debug logging. Restart to apply.").Value;
+            var category = ModConfig.For("realtime_shop");
+            Diagnostics = category.Define("Diagnostics", false, "Diagnostics", () => "Debug logging", tooltip: () => "Optional bounded local logging.", requiresRestart: true).Value;
             configured = new Timing(
-                category.CreateEntry("DayMinutes", 30.0, description: "Active minutes from 08:00 to 20:00. Restart to apply.").Value * 60,
-                category.CreateEntry("PatienceSeconds", 120.0).Value,
-                category.CreateEntry("ClosingGraceSeconds", 60.0).Value);
+                category.Define("DayMinutes", 30f, "Timing", () => "Day length (minutes)", min: 1f, max: 1440f, tooltip: () => "Active minutes from 08:00 to 20:00.", requiresRestart: true).Value * 60,
+                category.Define("PatienceSeconds", 120f, "Timing", () => "Customer patience (seconds)", min: 1f, max: 86400f, requiresRestart: true).Value,
+                category.Define("ClosingGraceSeconds", 60f, "Timing", () => "Closing grace (seconds)", min: 0f, max: 86400f, requiresRestart: true).Value);
             configured.Validate();
             Clock = new ShopClock(configured);
-            var gameAssembly = Path.Combine(MelonEnvironment.GameRootDirectory, "GameAssembly.dll");
+            var gameAssembly = typeof(PlayerStore).Assembly.Location;
             using var stream = File.OpenRead(gameAssembly);
             using var sha = SHA256.Create();
-            string hash = Convert.ToHexString(sha.ComputeHash(stream));
-            if (!GameCompatibility.Supports(OperatingSystem.IsWindows(), hash))
-                throw new NotSupportedException("This mod targets Windows Demo builds 25382790 and 26017150. Unsupported GameAssembly.dll SHA-256: " + hash);
-            var version = typeof(MelonMod).Assembly.GetName().Version;
-            if (version == null || version.Major != 0 || version.Minor != 7 || version.Build != 3)
-                throw new NotSupportedException("MelonLoader 0.7.3 is required for this build.");
-            GameHooks.Install(HarmonyInstance);
-            ClassInjector.RegisterTypeInIl2Cpp<FocusWatcher>();
+            string hash = SaveEncoding.Hex(sha.ComputeHash(stream));
+            if (!GameCompatibility.Supports(Application.platform == RuntimePlatform.WindowsPlayer, hash))
+                throw new NotSupportedException("This mod targets the tested Windows full release. Unsupported Assembly-CSharp.dll SHA-256: " + hash);
+            GameHooks.Install(harmony);
             watcher = new GameObject("RealTimeShop.Focus");
             UnityEngine.Object.DontDestroyOnLoad(watcher);
             _ = watcher.AddComponent<FocusWatcher>();
             Enabled = true;
             LogChoice("Installed capability; real time defaults OFF. Enable only at new-game creation.");
             Rebase();
-            LoggerInstance.Msg("Real-Time Shop 1.0.1 loaded; real time requires new-game opt-in.");
+            log.Log("Real-Time Shop 2.0.0 loaded with the native mod loader; real time requires new-game opt-in.");
         }
         catch (Exception ex) { Disable(ex); }
     }
@@ -71,7 +66,7 @@ public sealed partial class Plugin : MelonMod
     internal void ClearNotices() { GameHooks.ClearGoods(); notices.Clear(); nativeHoldExplanation = ""; ClearBarks(); }
     internal void LogChoice(string text, bool warning=false)
     {
-        if (warning) LoggerInstance.Warning("Real-time mode unavailable: " + text);
+        if (warning) log.Warning("Real-time mode unavailable: " + text);
         else Trace("opt-in " + text);
     }
     internal void ResetSession()
@@ -111,7 +106,7 @@ public sealed partial class Plugin : MelonMod
 
     internal void Notify(string text)
     {
-        LoggerInstance.Msg(text);
+        log.Log(text);
         notices.Publish(text);
     }
 
@@ -133,7 +128,7 @@ public sealed partial class Plugin : MelonMod
             "Native pause/focus state released; Real-Time Shop timers resume after this frame.");
     }
 
-    public override void OnUpdate()
+    internal void OnUpdate()
     {
         if (!Enabled) return;
         try
@@ -147,7 +142,7 @@ public sealed partial class Plugin : MelonMod
         catch (Exception ex) { Disable(ex); }
     }
 
-    public override void OnLateUpdate()
+    internal void OnLateUpdate()
     {
         if (!Enabled) return;
         NewGameChoiceUI.Refresh();
@@ -222,11 +217,11 @@ public sealed partial class Plugin : MelonMod
         Session.Reset();
         Paused = false;
         Clock.Deactivate();
-        HarmonyInstance.UnpatchSelf();
-        LoggerInstance.Error("Real-Time Shop disabled; vanilla behavior remains active. " + ex);
+        Unpatch();
+        log.Error("Real-Time Shop disabled; vanilla behavior remains active. " + ex);
     }
 
-    public override void OnDeinitializeMelon()
+    public void OnDisable()
     {
         NewGameChoiceUI.Clear();
         ClearNotices();
@@ -234,12 +229,17 @@ public sealed partial class Plugin : MelonMod
         Enabled = false;
         Session.Reset();
         Paused = false;
-        HarmonyInstance.UnpatchSelf();
+        Unpatch();
         if (watcher != null) UnityEngine.Object.Destroy(watcher);
         Current = null;
     }
 
-    internal void Trace(string text) { if (Diagnostics && diagnostics.Take()) LoggerInstance.Msg("SHOP-DIAG " + text); }
+    internal void Trace(string text) { if (Diagnostics && diagnostics.Take()) log.Log("SHOP-DIAG " + text); }
+    private void Unpatch()
+    {
+        foreach (var method in harmony.GetPatchedMethods().ToArray())
+            harmony.Unpatch(method, HarmonyPatchType.All, harmony.Id);
+    }
     private string lastTableAssessment = "";
     internal void TraceTableAssessment(TableAssessment assessment)
     {
@@ -307,7 +307,8 @@ public sealed partial class Plugin : MelonMod
 
 public sealed class FocusWatcher : MonoBehaviour
 {
-    public FocusWatcher(IntPtr pointer) : base(pointer) { }
+    private void Update() => Plugin.Current?.OnUpdate();
+    private void LateUpdate() => Plugin.Current?.OnLateUpdate();
     public void OnApplicationFocus(bool focused)
     {
         Plugin.Current?.Rebase();

@@ -7,6 +7,8 @@
     <NuGetAudit>false</NuGetAudit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json" HintPath="$(GameDir)/Probably Stolen_Data/Managed/Newtonsoft.Json.dll" Private="true" />
+    <Compile Include="../src/RealTimeShop/RuntimeSupport.cs" Link="RuntimeSupport.cs" />
     <Compile Include="../src/RealTimeShop/GameCompatibility.cs" Link="GameCompatibility.cs" />
     <Compile Include="../src/RealTimeShop/CustomerBarkDispatch.cs" Link="CustomerBarkDispatch.cs" />
     <Compile Include="../src/RealTimeShop/CustomerBarkState.cs" Link="CustomerBarkState.cs" />

@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-28",
+  "version": "2.0.0",
+  "gameBuild": "26284217",
+  "visibleVersion": "VERSION 100-Rev3",
+  "internalVersion": "0.46D",
+  "dllSha256": "F911A599F9A88C39E662D16C2684A6CD43D4EF150AB78BBBD16AD6DAF0015A0C",
+  "gameAssemblySha256": "0FD3DE05D961C8A415758F8F78A8E0A32692B8B45FB34350DF885ED8BD5E8EB0",
+  "passed": true,
+  "isolatedWorkspaceProfile": true,
+  "steamWritesBlocked": true,
+  "focusForcedForHiddenWindow": true,
+  "nativeLoader": {
+    "discovered": true,
+    "activated": true,
+    "refusal": null,
+    "capabilities": [
+      "files",
+      "reflection-external"
+    ]
+  },
+  "newGame": {
+    "scenarioPerksDifficultyFlow": true,
+    "defaultOff": true,
+    "backResets": true,
+    "optInCommitsAfterNativeSave": true
+  },
+  "pause": {
+    "elapsedBefore": 45.2788025,
+    "elapsedAfter": 45.2788025,
+    "observedSeconds": 5.0192697000000095,
+    "passed": true
+  },
+  "saveRestore": {
+    "matchedConsentAndTimer": true,
+    "nativeSlotAndRunPreserved": true,
+    "passed": true
+  },
+  "trading": {
+    "clockBefore": "08:23",
+    "clockAfter": "09:23",
+    "unsoldBefore": 5,
+    "unsoldAfter": 0,
+    "ownedBefore": 2,
+    "ownedAfter": 2,
+    "ownedIdentitiesPreserved": true,
+    "cashBefore": 550,
+    "cashAfter": 550,
+    "offerCancelled": true,
+    "customerDeparted": true,
+    "passed": true
+  },
+  "closing": {
+    "cutoffElapsed": 1800.0,
+    "nativeClosed": true,
+    "bedrollClockAdvances": true,
+    "boundarySeededNearCutoff": true,
+    "passed": true
+  },
+  "sleep": {
+    "boundarySeededAt": "02:59",
+    "nativeSleepAt": "03:00",
+    "dayBefore": 1,
+    "dayAfter": 2,
+    "cashBefore": 550,
+    "cashAfter": 545,
+    "wake": "11:00",
+    "onePowerCharge": true,
+    "overnightReloadKeepsDayCashAndClock": true,
+    "reportHoldsTime": true,
+    "reportCloseReleasesTime": true,
+    "passed": true
+  },
+  "limits": "Controlled ordinary-supplier queue and owned-item fixture; hidden-window focus forced; live Steam/cloud/workshop, exhaustive speech/transactions/protected events, historical-day UI, mod combinations and campaigns untested. No test helpers or game binaries distributed."
+}

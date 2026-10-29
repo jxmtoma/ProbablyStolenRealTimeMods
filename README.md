@@ -1,49 +1,50 @@
-# Real-Time Shop 1.0.1
+# Real-Time Shop 2.0.0
 
-Ordinary customers cancel idle trading panels when their patience expires or closing time arrives. The clock continues with the shutters closed and on the bedroll screen. Confirmations, trade commits, protected visits and normal pause/dialogue holds remain guarded.
+An unofficial, opt-in shop clock for the **Windows full release of Probably Stolen**. Version 2.0.0 ports the mod from the demo's IL2CPP/MelonLoader runtime to the full game's **Mono runtime and built-in mod loader**.
 
-Version 1.0.1 supports the updated demo, Steam build **26017150**. It builds with zero warnings/errors, passes **31,133 managed checks and 38 security assertions**, and resolves all **339** referenced game/Unity members. The exact DLL passes focused isolated native checks for new-game opt-in, save/consent/timer restore, idle-trade timeout, pause, automatic closing, evening time, 03:00 sleep and next-morning reload. Version 1.0.1 is installed locally with preferences preserved; no public release has been created. See [release notes](RELEASE-NOTES-1.0.1.md) and [the compatibility record](releases/1.0.1/COMPATIBILITY.md) for hashes, evidence and limits.
+The tested game is Steam app **4348910**, installed build **26284217**, visible **VERSION 100-Rev3**, Unity **2021.3.45f2**. The earlier full-release build **26274380** remains recognized. Internal Application.version is still **0.46D**; that string alone does not identify a compatible build. The mod checks exact Assembly-CSharp.dll SHA-256 values and disables itself on unknown binaries. The old demo requires [version 1.0.1](https://github.com/jxmtoma/ProbablyStolenRealTimeMods/releases/tag/v1.0.1).
 
-The previous 1.0.0 build's native tests and packages remain documented in [its preparation record](releases/1.0.0/PREPARATION.md). Those results apply to the older game build and do not establish native compatibility with this update.
+## Install
 
-This version includes the RC.24 reconstruction of missing RC.22 functionality from the preserved MIT-licensed mod binary, with routine diagnostics disabled by default. See [RECOVERY.md](RECOVERY.md) for reconstruction provenance. The timing fixes intentionally differ from the historical RC.22 behavior; [the RC.25 test record](release-rc25-native-test.txt) retains their original native evidence.
+Close the game and back up the entire save folder, including native saves and both realtime sidecars. Extract the player ZIP into the full game's directory. The resulting files must be:
 
-RC.24 supersedes RC.23 and restores its missing dismissal/protected-frame warning guards. See [RECOVERY-FIDELITY-REVIEW.md](RECOVERY-FIDELITY-REVIEW.md) for the remaining method review and [USER-INSTALL-AND-ACCEPTANCE.md](USER-INSTALL-AND-ACCEPTANCE.md) for user-run testing and rollback.
+    Probably Stolen/Mods/RealTimeShop/manifest.xml
+    Probably Stolen/Mods/RealTimeShop/ProbablyStolen.RealTimeShop.dll
 
-The exact historical RC.24 archive/source hashes and validation status are retained in [the release provenance record](releases/0.2.1-rc.24-recovered/PROVENANCE.md). RC.25 does not replace those historical archives. Its focused native timing tests do not constitute exhaustive gameplay acceptance.
+Activate **Real-Time Shop** in the game's Mods menu, review its file and reflection permissions, and restart. The package uses the game's supplied Harmony; MelonLoader and generated interop are no longer used. Keep one mod version installed.
 
-An unofficial, opt-in real-time shop clock and after-hours sleep schedule for Probably Stolen's Windows Demo. Original mod code is MIT licensed, including commercial reuse.
+Create a new game through scenario, perks and difficulty. On the **Difficulty** screen, explicitly select **Real-time mode** before Start Game. It defaults OFF and resets when you go back. Installing or activating the mod does not convert vanilla saves.
 
-Compatibility is intentionally narrow: Windows Steam Demo app **4349200**, updated public build **26017150**, visible **050rev5-L**, with the previous build **25382790** / **049-Rev5-L** retained. MelonLoader reports internal Unity `Application.version` **0.46D** for both builds. The mod accepts only their exact GameAssembly hashes and MelonLoader 0.7.3; unknown builds still disable the mod. The full game remains unsupported.
+See [README.txt](README.txt) for timing, backup, configuration, uninstall and economy effects, and [installation and acceptance](USER-INSTALL-AND-ACCEPTANCE.md) for validation steps.
 
-Read [README.txt](README.txt) before installation for save backups, timing, economy effects, conflicts, uninstall and coverage limits. Install the compiled mod through **MelonLoader 0.7.3**, using the game's `Mods` folder. This is not a native `IMod`/`manifest.xml` package.
+## Behavior
 
-## Build
+Default timing is 30 active minutes from 08:00 to 20:00, 120 seconds of ordinary customer patience and 60 seconds of closing grace. Idle trade panels allow time to pass and can be cancelled on timeout. Confirmations, trade commits, dragging and protected visits retain their safety guards. Native dialogue, pause/options, focus loss and transitions hold time.
 
-Use Windows, PowerShell, the .NET SDK 10.0.401 (release build toolchain), and the .NET 6 reference pack. Obtain the game through a licensed installation and MelonLoader 0.7.3 from its official distribution. Let the loader generate the game's interop assemblies. Dependencies and game files are not included here; see [DEPENDENCIES.txt](DEPENDENCIES.txt).
+The clock continues with closed shutters and on the bedroll screen. At 03:00 it requests native sleep only when the native requirements and safety guards permit it. Late sleep can move the next opening to 11:00; closing remains 20:00. Native overnight expenses, security, rent and outing rules remain in charge.
 
-```powershell
-./Build.ps1 -GameDir 'D:/SteamLibrary/steamapps/common/Probably Stolen Demo'
-./Test.ps1
-./tools/Verify-GameInterop.ps1 -GameDir 'D:/SteamLibrary/steamapps/common/Probably Stolen Demo' -DllPath './src/RealTimeShop/bin/Release/net6.0/ProbablyStolen.RealTimeShop.dll' -ReportPath './interop-verification.json'
-```
+Consent and timer sidecar schemas are retained. Restore requires both sidecars to match the exact native save, slot, run and day. Loading a historical day file without its own matched sidecars stays vanilla; it cannot borrow the latest slot's timing.
 
-Building reads dependency references and writes only local `bin`/`obj` outputs. It does not install the mod or launch the game. Output: `src/RealTimeShop/bin/Release/net6.0/ProbablyStolen.RealTimeShop.dll`. All runtime references use `Private=false`. To supply references separately, build the project with `-p:LoaderDir=... -p:InteropDir=...`.
+## Build and verify
 
-Deterministic release compilation uses `ContinuousIntegrationBuild`, no PDB, and a source path map. For byte-for-byte reproduction, use the same SDK/reference packs and dependency versions. Interfaces are dynamically referenced; Il2CppInterop remains separately replaceable and mod source is provided for rebuilding/relinking. Modification and reverse engineering to debug library modifications are not restricted.
+Use Windows, SDK **10.0.401** from global.json and a licensed full-game installation. Compile against the game's own Mono reference assemblies; no dependency binaries are included or copied into the mod output. The mod targets netstandard2.1; the standalone checks run on .NET 10 and use the game's supplied Newtonsoft.Json.
 
-## Validation
+    ./Build.ps1 -GameDir 'C:/Program Files (x86)/Steam/steamapps/common/Probably Stolen' -Rebuild
+    ./Test.ps1 -GameDir 'C:/Program Files (x86)/Steam/steamapps/common/Probably Stolen'
+    ./tools/Verify-GameInterop.ps1 -GameDir '<full game directory>' -DllPath './src/RealTimeShop/bin/Release/netstandard2.1/ProbablyStolen.RealTimeShop.dll' -ReportPath './interop-verification.json'
 
-The public checks exercise compatibility guards, clock, consent, closing, sleep, speech and security policies with synthetic inputs. The interop check resolves generated members without executing game code. Current evidence and focused native coverage are recorded in [the compatibility record](releases/1.0.1/COMPATIBILITY.md). Historical native/fixture/IL reviews apply to their recorded binaries. These checks do not exhaust every transaction, protected event, save/reload failure or long campaign. See [VALIDATION.txt](VALIDATION.txt).
+Build.ps1 does not install the mod or launch the game. For separately supplied references, set ManagedDir on the project. The verifier retains its historical filename but now resolves managed Mono members using the game's supplied Cecil library. It does not execute gameplay or validate reflection semantics.
 
-## Conduct and privacy
+Use [DEPENDENCIES.txt](DEPENDENCIES.txt) and [DEPENDENCY-HASHES.json](DEPENDENCY-HASHES.json) for exact reference provenance. Release compilation is deterministic, with a source path map and no PDB or Git informational-version suffix.
 
-The mod makes no network requests and transmits no player data. Optional local debug logging defaults OFF (`Diagnostics=false`); useful warnings, errors, startup identification and gameplay notices remain. Routine pause/resume notices are silent. It changes opted-in save behavior, customer timing, available trading time and therefore potential income; native overnight expenses and security outcomes remain in charge. Other mods touching these systems may conflict.
+## Validation and release status
 
-No game source, assets, generated interop assemblies, saves, or loader binaries are distributed. Native UI controls are reused only at runtime. The mod does not activate dormant or unreleased perks. The game's [modding code of conduct](https://github.com/dragonpan2/probably-stolen-modding/blob/main/CodeOfConduct.md) and [native API guide](https://github.com/dragonpan2/probably-stolen-modding/blob/main/ModdingGuide.md) are separate from this loader's installation instructions.
+The port builds with zero warnings/errors. Managed/security checks and the managed-member audit are complemented by isolated game testing. Exact hashes, completed native cases and remaining limits are recorded in [the compatibility record](releases/2.0.0/COMPATIBILITY.md) and [release notes](RELEASE-NOTES-2.0.0.md). Earlier demo tests apply only to their recorded binaries.
 
-MIT covers the original project. See [LICENSE](LICENSE), [LICENSE-NOTICE.txt](LICENSE-NOTICE.txt), and `licenses/` for dependency notices and applicable license texts.
+Download the player ZIP and SHA256SUMS.txt from [GitHub v2.0.0](https://github.com/jxmtoma/ProbablyStolenRealTimeMods/releases/tag/v2.0.0) or [Nexus Mods](https://www.nexusmods.com/probablystolen/mods/608?tab=files). Source and build instructions are preserved at [tag v2.0.0](https://github.com/jxmtoma/ProbablyStolenRealTimeMods/tree/v2.0.0). Local source snapshots and reproducibility records remain local; no source ZIP is manually uploaded.
 
-## Recovered installed build
+## License, privacy and conflicts
 
-[`recovered/installed/ProbablyStolen.RealTimeShop.dll`](recovered/installed/ProbablyStolen.RealTimeShop.dll) preserves historical **0.2.1-rc.22**. Its exact source and original commit remain unavailable. This branch reconstructs its functional additions for a separately versioned candidate. The preserved binary is excluded from new player/source archives. See [the recovery record](recovered/InstalledBuild.md).
+Original mod code is MIT licensed, including commercial reuse. The mod makes no network requests and transmits no player data. Optional bounded local diagnostics default OFF; warnings, startup identification and gameplay notices remain. Timed departures and shorter late-start days can affect income. Other clock, customer, closing, sleep, save or new-game UI mods may conflict.
+
+No game code, assets, generated interfaces, saves or dependency binaries are distributed. Native UI resources are reused at runtime. See [LICENSE-NOTICE.txt](LICENSE-NOTICE.txt), [the developer's modding guide](https://github.com/dragonpan2/probably-stolen-modding/blob/main/ModdingGuide.md), and [RECOVERY.md](RECOVERY.md) for the preserved demo reconstruction lineage.

@@ -3,15 +3,19 @@ param(
  [Parameter(Mandatory=$true)][string]$DllPath,
  [Parameter(Mandatory=$true)][ValidatePattern('^[0-9a-fA-F]{40}$')][string]$SourceCommit,
  [Parameter(Mandatory=$true)][ValidatePattern('^[0-9a-fA-F]{64}$')][string]$ExpectedDllSha256,
- [Parameter(Mandatory=$true)][string]$OutputDirectory
+ [Parameter(Mandatory=$true)][string]$OutputDirectory,
+ [switch]$WorkingTreeSnapshot
 )
 $ErrorActionPreference='Stop'
 $source=Split-Path -Parent $PSScriptRoot
 $out=[IO.Path]::GetFullPath($OutputDirectory)
 if(Test-Path -LiteralPath $out){throw 'Use a new output directory; existing artifacts are never overwritten.'}
 if((Get-FileHash -LiteralPath $DllPath -Algorithm SHA256).Hash -ne $ExpectedDllSha256){throw 'DLL hash mismatch'}
-& git -C $source diff --quiet $SourceCommit -- .
-if($LASTEXITCODE){throw 'Tracked source must match SourceCommit before packaging.'}
+if(!$WorkingTreeSnapshot){
+ & git -C $source diff --quiet $SourceCommit -- .
+ if($LASTEXITCODE){throw 'Tracked source must match SourceCommit before packaging, or explicitly use WorkingTreeSnapshot for a local candidate.'}
+}
+$sourceState=if($WorkingTreeSnapshot){'Uncommitted working-tree snapshot; commit below is its base, not the candidate source revision.'}else{'Tracked source matches the recorded commit.'}
 [xml]$project=Get-Content -Raw -LiteralPath (Join-Path $source 'src/RealTimeShop/RealTimeShop.csproj')
 $version=[string]$project.Project.PropertyGroup.Version
 if($version -notmatch '^\d+\.\d+\.\d+(?:-[A-Za-z0-9.-]+)?$'){throw 'Invalid project version'}
@@ -19,13 +23,16 @@ $releaseNotes="RELEASE-NOTES-$version.md"
 if(!(Test-Path -LiteralPath (Join-Path $source $releaseNotes))){throw "Missing release notes: $releaseNotes"}
 if([Diagnostics.FileVersionInfo]::GetVersionInfo([IO.Path]::GetFullPath($DllPath)).ProductVersion -ne $version){throw 'DLL/project version mismatch'}
 $stage=Join-Path $out 'player-staging'
-New-Item -ItemType Directory -Path "$stage/Mods","$stage/licenses","$out/verification" -Force | Out-Null
-Copy-Item -LiteralPath $DllPath -Destination "$stage/Mods/ProbablyStolen.RealTimeShop.dll"
+New-Item -ItemType Directory -Path "$stage/Mods/RealTimeShop","$stage/licenses","$out/verification" -Force | Out-Null
+Copy-Item -LiteralPath $DllPath -Destination "$stage/Mods/RealTimeShop/ProbablyStolen.RealTimeShop.dll"
+Copy-Item -LiteralPath (Join-Path $source 'src/RealTimeShop/manifest.xml') -Destination "$stage/Mods/RealTimeShop/manifest.xml"
+[xml]$manifest=Get-Content -Raw -LiteralPath "$stage/Mods/RealTimeShop/manifest.xml"
+if($manifest.Manifest.ModVersion -ne $version){throw 'Manifest/project version mismatch'}
 foreach($name in @('README.txt','CHANGELOG.txt','DEPENDENCIES.txt','DEPENDENCY-HASHES.json','LICENSE.txt','LICENSE-NOTICE.txt','VALIDATION.txt','RECOVERY.md',$releaseNotes,'USER-INSTALL-AND-ACCEPTANCE.md','RealTimeShop.cfg.example')){
  Copy-Item -LiteralPath (Join-Path $source $name) -Destination (Join-Path $stage $name)
 }
 Get-ChildItem -LiteralPath "$source/licenses" -Filter '*.txt' -File | ForEach-Object {Copy-Item -LiteralPath $_.FullName -Destination "$stage/licenses/$($_.Name)"}
-foreach($name in @('COMPATIBILITY.md','NATIVE-TESTS.md','INTEROP-VERIFICATION.json','NATIVE-SMOKE.json','METHOD-COMPARISON.json','INSTALLATION-STATE.json')){
+foreach($name in @('COMPATIBILITY.md','NATIVE-TESTS.md','INTEROP-VERIFICATION.json','NATIVE-SMOKE.json','METHOD-COMPARISON.json')){
  $record=Join-Path $source "releases/$version/$name"
  if(Test-Path -LiteralPath $record){
   $recordStage=Join-Path $stage "releases/$version"
@@ -34,11 +41,15 @@ foreach($name in @('COMPATIBILITY.md','NATIVE-TESTS.md','INTEROP-VERIFICATION.js
  }
 }
 $utf8=[Text.UTF8Encoding]::new($false)
+$packageTitle=if($WorkingTreeSnapshot){'PREPARED RELEASE - NOT PUBLISHED'}else{'REAL-TIME SHOP RELEASE'}
+$sourceUrl=if($WorkingTreeSnapshot){'https://github.com/jxmtoma/ProbablyStolenRealTimeMods'}else{"https://github.com/jxmtoma/ProbablyStolenRealTimeMods/tree/$SourceCommit"}
+$candidateNotice=if($WorkingTreeSnapshot){"Uncommitted candidates have a separate locally retained source snapshot;`nthe base commit alone does not reproduce those changes."}else{'The source URL above identifies the exact committed release source.'}
 $provenance=@"
-PREPARED RELEASE - NOT PUBLISHED
+$packageTitle
 Version: $version
 Repository: https://github.com/jxmtoma/ProbablyStolenRealTimeMods
-Source commit: $SourceCommit
+Source/base commit: $SourceCommit
+Source state: $sourceState
 DLL SHA-256: $($ExpectedDllSha256.ToUpperInvariant())
 
 This is reconstructed source and a new build, not the historical RC.22 DLL.
@@ -46,21 +57,26 @@ Read VALIDATION.txt, $releaseNotes and README.txt for validation scope.
 Historical native results apply only to their recorded mod/game binaries;
 consult this version's evidence record. No blanket gameplay acceptance is claimed.
 
-Rebuild from the matching source archive using Windows PowerShell, SDK
-10.0.401 (global.json), .NET 6.0.36 reference packages, the dependency versions/hashes
-in DEPENDENCY-HASHES.json and a licensed supported game installation.
+Source and build instructions: $sourceUrl
+$candidateNotice
+Rebuild using Windows PowerShell, SDK 10.0.401 (global.json), the Mono
+reference versions/hashes in DEPENDENCY-HASHES.json and a licensed supported
+full-game installation. No additional loader or .NET 6 reference pack is used.
 Run Build.ps1 -GameDir '<supported game directory>' -Rebuild.
-Run Test.ps1. Both accept -RestoreConfigFile for an existing offline NuGet
+Run Test.ps1 -GameDir '<supported game directory>'. Both accept
+-RestoreConfigFile for an existing offline NuGet
 configuration. See the preparation record for the toolchain and restore method.
-Dependencies, native/game binaries, interop, saves and private fixtures are
-not distributed. SDK checks target .NET 10; the mod targets .NET 6.
+Dependencies, native/game binaries, saves and private fixtures are not
+distributed. SDK checks target .NET 10; the mod targets netstandard2.1.
 
 Informational version has no Git suffix. Compilation is deterministic with
 no PDB and a source path map. Package with tools/Package-Release.ps1 using
 this commit and DLL hash. ZIP entries are ordinal-sorted, fixed at
 2000-01-01 UTC, external attributes zero, ZipArchive Optimal compression.
 Exact compression bytes depend on the recorded PowerShell/.NET runtime.
-The source package excludes recovered binary artifacts and build outputs.
+Any local source package excludes recovered binaries and build outputs.
+Source ZIPs and reproducibility records are local-only and must not be uploaded.
+Public assets contain only the player mod ZIP and its checksums.
 MIT covers original mod code only; dependency notices apply separately.
 "@
 [IO.File]::WriteAllText("$stage/SOURCE.txt",$provenance.Replace("`r`n","`n")+"`n",$utf8)
@@ -82,11 +98,25 @@ $inventory=@(Get-ChildItem -LiteralPath $stage -File -Recurse | ForEach-Object {
  if($hash -ne (Get-FileHash -LiteralPath (Join-Path $extract $rel) -Algorithm SHA256).Hash){throw "Extraction mismatch: $rel"}
  [ordered]@{path=$rel;bytes=$_.Length;sha256=$hash}
 })
-$export=Join-Path $out 'verification/source-export.zip'
-& git -C $source archive --format=zip "--output=$export" $SourceCommit . ':!recovered/installed'
-if($LASTEXITCODE){throw 'Source export failed'}
 $sourceStage=Join-Path $out 'source-staging'
-[IO.Compression.ZipFile]::ExtractToDirectory($export,$sourceStage)
+if($WorkingTreeSnapshot){
+ New-Item -ItemType Directory -Path $sourceStage -Force | Out-Null
+ $snapshotPaths=@(& git -C $source ls-files --cached --others --exclude-standard) | Sort-Object -Unique
+ if($LASTEXITCODE){throw 'Cannot enumerate source snapshot'}
+ foreach($relative in $snapshotPaths){
+  if($relative -like 'recovered/installed/*'){continue}
+  $snapshotFile=Join-Path $source $relative
+  if(!(Test-Path -LiteralPath $snapshotFile -PathType Leaf)){continue}
+  $destination=Join-Path $sourceStage $relative
+  New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
+  Copy-Item -LiteralPath $snapshotFile -Destination $destination
+ }
+} else {
+ $export=Join-Path $out 'verification/source-export.zip'
+ & git -C $source archive --format=zip "--output=$export" $SourceCommit . ':!recovered/installed'
+ if($LASTEXITCODE){throw 'Source export failed'}
+ [IO.Compression.ZipFile]::ExtractToDirectory($export,$sourceStage)
+}
 $forbidden=@(Get-ChildItem -LiteralPath $sourceStage -Recurse -File | Where-Object {$_.Extension -in @('.dll','.exe','.pdb','.es3','.log','.zip') -or $_.Name -like '*.realtime-*.json'})
 if($forbidden.Count){throw 'Source package contains a forbidden binary or private artifact'}
 $sourceZip=Join-Path $out "RealTimeShop-$version-source.zip"
@@ -95,7 +125,8 @@ $sourceZip=Join-Path $out "RealTimeShop-$version-source.zip"
 $sourceHash=(Get-FileHash -LiteralPath $sourceZip -Algorithm SHA256).Hash
 if($sourceHash -ne (Get-FileHash -LiteralPath "$out/verification/reproduced-source.zip" -Algorithm SHA256).Hash){throw 'Source ZIP reproduction mismatch'}
 $inventory | ConvertTo-Json | Set-Content -LiteralPath "$out/PACKAGE-INVENTORY.json" -Encoding utf8NoBOM
-$report=[ordered]@{version=$version;sourceCommit=$SourceCommit;dllSha256=$ExpectedDllSha256.ToUpperInvariant();playerZipSha256=$first;sourceZipSha256=$sourceHash;zipReproduced=$true;sourceZipReproduced=$true;extractedEntriesVerified=$inventory.Count;powerShell=$PSVersionTable.PSVersion.ToString();packagingRuntime=[Runtime.InteropServices.RuntimeInformation]::FrameworkDescription}
+$report=[ordered]@{version=$version;sourceCommit=$SourceCommit;workingTreeSnapshot=[bool]$WorkingTreeSnapshot;sourceState=$sourceState;dllSha256=$ExpectedDllSha256.ToUpperInvariant();playerZipSha256=$first;sourceZipSha256=$sourceHash;sourceZipLocalOnly=$true;zipReproduced=$true;sourceZipReproduced=$true;extractedEntriesVerified=$inventory.Count;powerShell=$PSVersionTable.PSVersion.ToString();packagingRuntime=[Runtime.InteropServices.RuntimeInformation]::FrameworkDescription}
 $report | ConvertTo-Json | Set-Content -LiteralPath "$out/PACKAGE-VERIFICATION.json" -Encoding utf8NoBOM
-[IO.File]::WriteAllText("$out/SHA256SUMS.txt",$first.ToLowerInvariant()+"  "+[IO.Path]::GetFileName($zip)+"`n"+$sourceHash.ToLowerInvariant()+"  "+[IO.Path]::GetFileName($sourceZip)+"`n",$utf8)
+[IO.File]::WriteAllText("$out/SHA256SUMS.txt",$first.ToLowerInvariant()+"  "+[IO.Path]::GetFileName($zip)+"`n",$utf8)
+[IO.File]::WriteAllText("$out/verification/LOCAL-SOURCE-SHA256SUMS.txt",$sourceHash.ToLowerInvariant()+"  "+[IO.Path]::GetFileName($sourceZip)+"`n",$utf8)
 $report | ConvertTo-Json

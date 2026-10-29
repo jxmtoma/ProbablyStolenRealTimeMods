@@ -1,3 +1,22 @@
+2.0.0 FULL-RELEASE PORT - 2026-10-28
+Windows Steam 4348910, build 26284217 / VERSION 100-Rev3; earlier full build
+26274380 retained. Mono/native IMod loader; internal Application.version 0.46D.
+SDK 10.0.401 deterministic Release: zero warnings/errors. 31,141 managed checks,
+38 security assertions and 605/605 resolved managed member references pass.
+Native capability scan accepts declared files/reflection-external permissions.
+Exact final DLL passes isolated native opt-in/back/reset, native save/restore,
+pause, idle customer cancellation preserving owned table items/cash, automatic
+closure, evening/bedroll time, safe 03:00 sleep, one native power charge and
+11:00 next morning with matched overnight reload. Test helpers stage an ordinary
+supplier queue, seed boundary times and force focus while blocking Steam writes.
+These helpers/game binaries/saves are excluded. Native focus loss, exhaustive
+speech/transactions/protected events, historical-day UI, long campaigns, live
+Steam/cloud/workshop and mod combinations remain unverified. No normal campaign
+was loaded. Current hashes and controlled evidence: releases/2.0.0/COMPATIBILITY.md,
+NATIVE-SMOKE.json, NATIVE-TESTS.md and INTEROP-VERIFICATION.json.
+
+The following entries are historical demo evidence for their exact binaries.
+
 1.0.1 COMPATIBILITY UPDATE - 2026-10-20
 Target: Windows Steam Demo 4349200, updated public build 26017150.
 Prior build 25382790 remains recognized; other binary hashes fail closed.

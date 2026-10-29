@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
-using System.Text.Json;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace RealTimeShop;
 
@@ -11,7 +12,7 @@ internal static class SaveSidecar
     {
         using var stream = File.OpenRead(path);
         using var sha = SHA256.Create();
-        return Convert.ToHexString(sha.ComputeHash(stream));
+        return SaveEncoding.Hex(sha.ComputeHash(stream));
     }
 
     // Call only after the game's native write has successfully completed.
@@ -27,13 +28,13 @@ internal static class SaveSidecar
         string temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
         {
-            byte[] json = JsonSerializer.SerializeToUtf8Bytes(new Envelope(2, Hash(nativeSave), clock.Capture()));
+            byte[] json = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new Envelope(2, Hash(nativeSave), clock.Capture())));
             using (var file = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
             {
                 file.Write(json);
                 file.Flush(true);
             }
-            File.Move(temporary, path, true);
+            SaveEncoding.Replace(temporary, path);
         }
         finally { if (File.Exists(temporary)) File.Delete(temporary); }
     }
@@ -46,7 +47,7 @@ internal static class SaveSidecar
         {
             string path = PathFor(nativeSave);
             if (!File.Exists(path) || new FileInfo(path).Length > 16384) return false;
-            var envelope = JsonSerializer.Deserialize<Envelope>(File.ReadAllText(path));
+            var envelope = JsonConvert.DeserializeObject<Envelope>(File.ReadAllText(path));
             if (envelope == null || envelope.Version is not (1 or 2) || envelope.Clock?.Timing == null || envelope.NativeHash != Hash(nativeSave) ||
                 !clock.Restore(envelope.Clock, dayKey, customer)) return false;
             reason = "Timers restored.";

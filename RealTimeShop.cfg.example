@@ -1,8 +1,14 @@
-[RealTimeShop]
-# Active minutes from 08:00 to 20:00. Restart to apply.
+# Real-Time Shop 2.0.0 default values (reference only).
+# Configure through the game's Mods settings UI; restart after changes.
+# Native ModConfig saves JSON in the save folder at:
+# ModConfigs/realtime_shop.json
+# Do not copy this historical-format example over a native JSON file.
+# Previous MelonPreferences.cfg is neither modified nor imported.
+
+[Timing]
 DayMinutes = 30.0
 PatienceSeconds = 120.0
 ClosingGraceSeconds = 60.0
-# Bounded local debug logging; disabled for normal play.
-Diagnostics = false
 
+[Diagnostics]
+Diagnostics = false

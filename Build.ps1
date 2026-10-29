@@ -10,4 +10,4 @@ if($LASTEXITCODE){throw 'Restore failed'}
 $target=if($Rebuild){'Rebuild'}else{'Build'}
 & dotnet build $project -c Release --no-restore "-p:GameDir=$game" -p:UseSharedCompilation=false "-t:$target"
 if($LASTEXITCODE){throw 'Build failed'}
-Get-FileHash (Join-Path $PSScriptRoot 'src/RealTimeShop/bin/Release/net6.0/ProbablyStolen.RealTimeShop.dll') -Algorithm SHA256
+Get-FileHash (Join-Path $PSScriptRoot 'src/RealTimeShop/bin/Release/netstandard2.1/ProbablyStolen.RealTimeShop.dll') -Algorithm SHA256

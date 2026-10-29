@@ -1,3 +1,19 @@
+2.0.0 - full-release Mono/native-loader port (2026-10-28)
+
+Support Windows full-game builds 26284217 / VERSION 100-Rev3 and the earlier
+26274380 / VERSION 100-Rev1. Port to IMod, native Harmony/ModConfig and Mono;
+remove MelonLoader/IL2CPP dependencies. Move explicit default-OFF consent to
+the final Difficulty screen. Adapt private fields, tablet sleep/confirm controls,
+managed object identity and successful customer-item placement tracking.
+Retain save/consent schemas via the game's Newtonsoft.Json, atomic sidecar
+replacement and exact native file/slot/run/day matching for historical loads.
+Build: zero warnings/errors; 31,141 managed checks, 38 security assertions and
+605 resolved managed member references. Focused isolated native setup, pause,
+save/load, idle timeout/owned goods/cash preservation, closing, sleep and
+next-morning reload pass on the launch-day hotfix. See RELEASE-NOTES-2.0.0.md.
+Use Mods/RealTimeShop/manifest.xml and ProbablyStolen.RealTimeShop.dll.
+Publish only the player ZIP/checksums; keep local source records local.
+
 1.0.1 - demo compatibility update (2026-10-20)
 
 Recognize updated Windows Steam Demo build 26017150 while retaining the

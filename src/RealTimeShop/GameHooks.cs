@@ -1,6 +1,5 @@
 using System.Reflection;
 using HarmonyLib;
-using Il2Cpp;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -14,18 +13,20 @@ internal static partial class GameHooks
     private static readonly Dictionary<long, Dialogue[]> patrolIntroductions = new();
     internal static void ClearGoods() { goods.Clear(); patrolVisit.Clear(); patrolIntroductions.Clear(); closedShutterLock.Clear(); }
     private static bool pendingLoad, openingForClose, pendingNewGame;
+    private static string? pendingLoadPath;
     private static readonly HashSet<string> scriptedIds = new(StringComparer.Ordinal);
-    private static readonly PropertyInfo[] tutorialHints = typeof(TutorialUIManager)
-        .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-        .Where(p => p.Name.StartsWith("tutorial", StringComparison.Ordinal) && p.PropertyType == typeof(GameObject)).ToArray();
+    private static readonly FieldInfo[] tutorialHints = typeof(TutorialUIManager)
+        .GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+        .Where(p => p.Name.StartsWith("tutorial", StringComparison.Ordinal) && p.FieldType == typeof(GameObject)).ToArray();
     private static Plugin Mod => Plugin.Current!;
     internal static bool Busy => busyDepth > 0 || pendingLoad;
     internal static bool InShop => PlayerStore.IsInstanceExist() && StoreUIManager.Instance != null;
     internal static string DayKey() => SaveIdentity.Key(PlayerStore.Instance.saveSlotId, PlayerStore.Instance.runID, StoreStation.Instance.dayCounter);
-    private static string SavePath() => new ES3Settings(SaveFiles.Slot(PlayerStore.Instance.saveSlotId), new Il2CppSystem.Enum[0]).FullPath;
+    private static string SavePath() => new ES3Settings(SaveFiles.Slot(PlayerStore.Instance.saveSlotId)).FullPath;
 
     internal static void Install(HarmonyLib.Harmony harmony)
     {
+        GameAccess.Validate();
         if (tutorialHints.Length == 0) throw new MissingMemberException("Tutorial visibility hooks are unavailable.");
         // Resolve the complete patch set before applying any changes. No guessed overloads.
         var patches = new List<(MethodInfo Target, string? Prefix, string? Postfix, string? Finalizer)>();
@@ -36,17 +37,17 @@ internal static partial class GameHooks
             patches.Add((target, prefix, postfix, finalizer));
         }
         Add(typeof(PlayerStore), nameof(PlayerStore.StartNewGame), nameof(NewGamePrefix), nameof(FreshDayPostfix), nameof(NewGameFinalizer));
-        Add(typeof(MainMenuUIController), nameof(MainMenuUIController.StartNewGameClick), nameof(CreationChoicePrefix));
-        Add(typeof(MainMenuUIController), nameof(MainMenuUIController.OnNewGameClick), nameof(ClearCreationChoicePrefix), nameof(OpenCreationSetupPostfix));
-        Add(typeof(PerkUIController), nameof(PerkUIController.CloseUI), postfix: nameof(BackCreationSetupPostfix));
-        Add(typeof(MainMenuUIController), nameof(MainMenuUIController.OnPerkFinishedClick), nameof(FinalCreationSetupPrefix), finalizer: nameof(FinalCreationSetupFinalizer));
+        Add(typeof(MainMenuUIController), nameof(MainMenuUIController.OnNewGameClick), nameof(ClearCreationChoicePrefix));
+        Add(typeof(NewGameDifficultyUI), nameof(NewGameDifficultyUI.Open), postfix: nameof(OpenCreationSetupPostfix));
+        Add(typeof(NewGameDifficultyUI), "OnStartClicked", nameof(CreationChoicePrefix), finalizer: nameof(CreationStartFinalizer));
+        Add(typeof(NewGameDifficultyUI), "OnWindowClosed", postfix: nameof(BackCreationSetupPostfix));
         Add(typeof(MainMenuUIController), nameof(MainMenuUIController.CloseNewGameMenu), nameof(ClearCreationChoicePrefix));
         Add(typeof(PlayerStore), nameof(PlayerStore.BeginDay), postfix: nameof(FreshDayPostfix));
         Add(typeof(PlayerStore), nameof(PlayerStore.EndDay), postfix: nameof(ClosedPostfix));
         Add(typeof(PlayerStore), nameof(PlayerStore.DismissCurrentClient), nameof(DepartureDiagnosticPrefix), nameof(DepartedPostfix),
             args: new[] { typeof(bool), typeof(bool), typeof(bool) });
         Add(typeof(PlayerStore), nameof(PlayerStore.SaveGame), nameof(BusyPrefix), finalizer: nameof(BusyFinalizer));
-        Add(typeof(PlayerStore), nameof(PlayerStore.WriteSlotFile), postfix: nameof(SavedPostfix));
+        Add(typeof(PlayerStore), "WriteSlotFile", postfix: nameof(SavedPostfix));
         Add(typeof(PlayerStore), nameof(PlayerStore.LoadGame), nameof(LoadPrefix), finalizer: nameof(LoadFinalizer));
         Add(typeof(PlayerStore), nameof(PlayerStore.EndNight), nameof(BusyPrefix), finalizer: nameof(BusyFinalizer));
         Add(typeof(EndOfDayUIManager), nameof(EndOfDayUIManager.OnEndDayButtonClick), nameof(SleepPrefix), finalizer: nameof(SleepFinalizer));
@@ -61,7 +62,7 @@ internal static partial class GameHooks
         Add(typeof(StoreShutterButton), nameof(StoreShutterButton.OpenShutter), nameof(OpenPrefix));
         Add(typeof(StoreShutterButton), nameof(StoreShutterButton.EndAndClose), nameof(ShutterClosePrefix), nameof(ShutterClosePostfix));
         Add(typeof(StoreCalendar), "Update", postfix: nameof(CalendarPostfix));
-        Add(typeof(PlayerStore), nameof(PlayerStore.AddDirectSellingItemToTable), postfix: nameof(CustomerGoodsPostfix),
+        Add(typeof(PlayerStore), nameof(PlayerStore.TryAddDirectSellingItemToTable), postfix: nameof(CustomerGoodsPlacedPostfix),
             args: new[] { typeof(GameItem), typeof(bool), typeof(bool), typeof(bool), typeof(int) });
         Add(typeof(PlayerStore), nameof(PlayerStore.AddDirectSellingItemToTableMiddle), postfix: nameof(CustomerGoodsPostfix),
             args: new[] { typeof(GameItem), typeof(bool) });
@@ -91,19 +92,23 @@ internal static partial class GameHooks
         try { action(); }
         catch(Exception ex)
         {
-            pendingLoad=false; pendingNewGame=false; openingForClose=false; NewGameChoiceUI.Clear();
+            pendingLoad=false; pendingLoadPath=null; pendingNewGame=false; openingForClose=false; NewGameChoiceUI.Clear();
             Mod.ResetSession(); Mod.LogChoice("State unavailable; vanilla remains active: "+ex.GetType().Name, true);
         }
     }
-    private static bool CreationChoicePrefix(MainMenuUIController __instance) => NewGameChoiceUI.BeforeStart(__instance);
-    private static void OpenCreationSetupPostfix(MainMenuUIController __instance) => Lifecycle(()=>NewGameChoiceUI.Open(__instance));
+    private static void CreationChoicePrefix() => Lifecycle(() => NewGameChoiceUI.BeforeStart());
+    private static Exception? CreationStartFinalizer(Exception? __exception)
+    {
+        if (__exception != null) NewGameChoiceUI.Clear();
+        return __exception;
+    }
+    private static void OpenCreationSetupPostfix() => Lifecycle(()=>NewGameChoiceUI.Open());
     private static void BackCreationSetupPostfix() => Lifecycle(()=>NewGameChoiceUI.Back());
-    private static void FinalCreationSetupPrefix() => NewGameChoiceUI.EnterFinalStart();
-    private static Exception? FinalCreationSetupFinalizer(Exception? __exception) => NewGameChoiceUI.LeaveFinalStart(__exception);
     private static void ClearCreationChoicePrefix() => Lifecycle(() =>
     {
+        if (NewGameChoiceUI.Starting) return;
         NewGameChoiceUI.Clear(); Mod.ResetSession();
-        pendingLoad=false; pendingNewGame=false; openingForClose=false;
+        pendingLoad=false; pendingLoadPath=null; pendingNewGame=false; openingForClose=false;
     });
 
     private static void NewGamePrefix() => Lifecycle(() =>
@@ -112,7 +117,7 @@ internal static partial class GameHooks
         Mod.ResetSession(); Mod.Session.BeginCreation(selected);
         goods.Clear();
         Mod.ClearNotices();
-        Mod.Clock.Deactivate(); pendingLoad = false; openingForClose = false; pendingNewGame = true;
+        Mod.Clock.Deactivate(); pendingLoad = false; pendingLoadPath = null; openingForClose = false; pendingNewGame = true;
         scriptedIds.Clear(); Mod.Rebase();
     });
     private static Exception? NewGameFinalizer(Exception? __exception)
@@ -135,6 +140,10 @@ internal static partial class GameHooks
     private static void TradePrefix(out bool __state) { __state = Mod.RealTimeActive; if (__state) tradeDepth++; }
     private static Exception? TradeFinalizer(bool __state, Exception? __exception)
     { if (__state) tradeDepth = Math.Max(0, tradeDepth - 1); return __exception; }
+    private static void CustomerGoodsPlacedPostfix(GameItem gameItem, bool isOwend, bool __result)
+    {
+        if (__result) CustomerGoodsPostfix(gameItem, isOwend);
+    }
     private static void CustomerGoodsPostfix(GameItem gameItem, bool isOwend)
     {
         if(!Mod.RealTimeActive) return;
@@ -142,16 +151,16 @@ internal static partial class GameHooks
         {
             var visit = PlayerStore.Instance.currentClientInstance;
             // Only successful native placement for this ordinary visitor establishes provenance.
-            if (!Mod.RealTimeActive || isOwend || visit == null || !IsOrdinary(visit.storeClient) || gameItem == null ||
+            if (!Mod.RealTimeActive || isOwend || visit == null || !IsOrdinary(visit?.GetClientBlueprint()) || gameItem == null ||
                 gameItem.state == null || gameItem.parentInventory == null || GeneralHelper.IsItemOwned(gameItem)) return;
             var entry=EmporiumEntry.Instance;
             if (entry == null) return;
-            var parent=gameItem.parentInventory.Pointer;
-            if (entry.frontInvinvElement != null && parent == entry.frontInvinvElement.Pointer ||
-                entry.backInvinvElement != null && parent == entry.backInvinvElement.Pointer)
+            var parent=gameItem.parentInventory.Id();
+            if (entry.frontInvinvElement != null && parent == entry.frontInvinvElement.Id() ||
+                entry.backInvinvElement != null && parent == entry.backInvinvElement.Id())
             {
-                goods.Record(visit.Pointer.ToInt64(), gameItem.Pointer.ToInt64(), gameItem.uniqueId);
-                RecordNestedCustomerGoods(gameItem, visit.Pointer.ToInt64());
+                goods.Record(visit.Id(), gameItem.Id(), gameItem.uniqueId);
+                RecordNestedCustomerGoods(gameItem, visit.Id());
             }
         }
         catch (Exception ex) { Mod.Trace("customer-goods provenance unavailable: " + ex.GetType().Name); }
@@ -169,12 +178,16 @@ internal static partial class GameHooks
         NewGameChoiceUI.Clear(); Mod.ResetSession();
         goods.Clear();
         Mod.ClearNotices();
-        Mod.Clock.Deactivate(); pendingLoad = true; openingForClose = false; pendingNewGame = false;
+        Mod.Clock.Deactivate(); pendingLoad = true; pendingLoadPath = null; openingForClose = false; pendingNewGame = false;
+        // The full release can load a historical day file. Its timers must match
+        // that exact file, never the latest slot's otherwise-valid sidecars.
+        string loadFile = SaveFiles.ResolveLoadFile(NewGameData.Instance);
+        if (!string.IsNullOrEmpty(loadFile)) pendingLoadPath = new ES3Settings(loadFile).FullPath;
         Mod.Paused = false; scriptedIds.Clear(); BusyPrefix();
     });
     private static Exception? LoadFinalizer(Exception? __exception)
     {
-        if (__exception != null) { pendingLoad = false; Mod.ResetSession(); }
+        if (__exception != null) { pendingLoad = false; pendingLoadPath = null; Mod.ResetSession(); }
         return BusyFinalizer(__exception);
     }
 
@@ -183,9 +196,11 @@ internal static partial class GameHooks
         if (!pendingLoad || busyDepth != 0 || !InShop || IsBlackScreen()) return false;
         pendingLoad = false;
         var store = PlayerStore.Instance;
-        string? customer = IsOrdinary(store.currentClientInstance?.storeClient) ? CustomerKey() : null;
-        bool consent=SaveOptInStore.TryRead(SavePath(),store.saveSlotId,store.runID);
-        bool restored=consent && SaveSidecar.TryRestore(SavePath(),Mod.Clock,DayKey(),customer,out _);
+        string? customer = IsOrdinary(store.currentClientInstance?.GetClientBlueprint()) ? CustomerKey() : null;
+        string? loadedPath = pendingLoadPath;
+        pendingLoadPath = null;
+        bool consent=loadedPath != null && SaveOptInStore.TryRead(loadedPath,store.saveSlotId,store.runID);
+        bool restored=consent && SaveSidecar.TryRestore(loadedPath!,Mod.Clock,DayKey(),customer,out _);
         Mod.Session.Restore(restored,store.saveSlotId,store.runID);
         if(restored) Mod.Notify("Real-time enabled for this opted-in save. Timers restored.");
         else { Mod.ResetSession(); Mod.LogChoice("No valid explicit new-game consent and timer state; existing save stays vanilla."); }
@@ -226,11 +241,11 @@ internal static partial class GameHooks
         }
     });
 
-    private static string? CustomerKey() => PlayerStore.Instance.currentClientInstance?.storeClient?.identifier;
+    private static string? CustomerKey() => PlayerStore.Instance.currentClientInstance?.GetClientBlueprint()?.identifier;
     private static void ScriptedFactoryPostfix(StoreClient? __result) => Lifecycle(() =>
     {
         if(!Mod.RealTimeActive && !(Mod.Session.PendingCreation && Mod.Session.PendingEnabled)) return;
-        if (!string.IsNullOrEmpty(__result?.identifier)) scriptedIds.Add(__result.identifier);
+        if (__result != null && !string.IsNullOrEmpty(__result.identifier)) scriptedIds.Add(__result.identifier);
     });
     private static bool IsOrdinary(StoreClient? client)
     {
@@ -255,18 +270,18 @@ internal static partial class GameHooks
         bool hasEndAction = false;
         while (line != null)
         {
-            if (lines.Count >= 64 || !seen.Add(line.Pointer.ToInt64()) || line.HasChoices()) return;
+            if (lines.Count >= 64 || !seen.Add(line.Id()) || line.HasChoices()) return;
             lines.Add(line); hasEndAction |= line.endAction != null; line = line.nextDialogue;
         }
-        if (lines.Count > 0 && hasEndAction) patrolIntroductions[__result.Pointer.ToInt64()] = lines.ToArray();
+        if (lines.Count > 0 && hasEndAction) patrolIntroductions[__result.Id()] = lines.ToArray();
     });
     private static long CurrentPatrolVisit()
     {
         if (!Mod.RealTimeActive || !InShop) return 0;
         var instance = PlayerStore.Instance.currentClientInstance;
-        var client = instance?.storeClient;
-        return instance != null && client != null && patrolIntroductions.ContainsKey(client.Pointer.ToInt64()) ?
-            instance.Pointer.ToInt64() : 0;
+        var client = instance?.GetClientBlueprint();
+        return instance != null && client != null && patrolIntroductions.ContainsKey(client.Id()) ?
+            instance.Id() : 0;
     }
     private static long ObservePatrol(Func<long> observe)
     {
@@ -299,7 +314,7 @@ internal static partial class GameHooks
             long visit = CurrentPatrolVisit();
             var line = __instance.currentDialog;
             if (visit != 0 && line != null && line.endAction != null && !line.isEndActionExecuted)
-                patrolVisit.ScheduleAction(visit, line.Pointer.ToInt64());
+                patrolVisit.ScheduleAction(visit, line.Id());
             return visit;
         });
     }
@@ -324,19 +339,19 @@ internal static partial class GameHooks
         ObservePatrol(() =>
         {
             if (__state != 0) patrolVisit.EndAction(__state,
-                __instance.isEndActionExecuted ? __instance.Pointer.ToInt64() : 0, __exception == null);
+                __instance.isEndActionExecuted ? __instance.Id() : 0, __exception == null);
         });
         return __exception;
     }
     private static bool PatrolCanLeaveAtClosing(StoreClient? client, bool ready, bool nativeQuiet, ClosingBlocker blockers)
     {
         if (client == null) return false;
-        bool known = patrolIntroductions.TryGetValue(client.Pointer.ToInt64(), out var intro);
+        bool known = patrolIntroductions.TryGetValue(client.Id(), out var intro);
         bool introComplete = known && client.isMainDialogueStarted &&
             intro!.All(line => line.endAction == null || line.isEndActionExecuted);
         var dialog = DialogUIManager.Instance;
         bool dialogueQuiet = dialog != null && dialog.currentDialog == null &&
-            dialog.displayingUncompletedDialog == null && !dialog.isWaitingForManualAdvance &&
+            GameAccess.Unfinished(dialog) == null && !dialog.isWaitingForManualAdvance &&
             !dialog.isSecMonologuePlaying && !DialogueVisible();
         var store = PlayerStore.Instance;
         return patrolVisit.Settled(CurrentPatrolVisit()) && PatrolClosingPolicy.Allows(new PatrolClosingFacts(
@@ -372,7 +387,7 @@ internal static partial class GameHooks
         {
             var instance = PlayerStore.Instance.currentClientInstance;
             var c = Mod.Clock;
-            Mod.TraceObservation(new CustomerObservation(instance == null ? 0 : instance.Pointer.ToInt64(), Facts(instance?.storeClient),
+            Mod.TraceObservation(new CustomerObservation(instance == null ? 0 : instance.Id(), Facts(instance?.GetClientBlueprint()),
                 frame.Ready, frame.Suspended, frame.Protected, frame.SafeToDismiss, c.Phase.ToString(), c.Elapsed, c.PatienceLeft, c.GraceLeft, holdReason, frame.ClosingOnlyDismissal));
         }
         catch (Exception ex) { Mod.Trace("customer observation failed: " + ex.GetType().Name); }
@@ -380,7 +395,7 @@ internal static partial class GameHooks
     private static void DepartureDiagnosticPrefix()
     {
         if(!Mod.RealTimeActive || !Mod.Diagnostics) return;
-        try { var f=Facts(PlayerStore.Instance.currentClientInstance?.storeClient); Mod.Trace("native-dismiss-enter id="+f.Identifier+"; classification="+f.Reason); }
+        try { var f=Facts(PlayerStore.Instance.currentClientInstance?.GetClientBlueprint()); Mod.Trace("native-dismiss-enter id="+f.Identifier+"; classification="+f.Reason); }
         catch (Exception ex) { Mod.Trace("dismiss observation failed: "+ex.GetType().Name); }
     }
     private static string lastAdmission = "";
@@ -419,9 +434,9 @@ internal static partial class GameHooks
         return !Busy && !Mod.TimersHeld && !IsBlackScreen() && !store.cinematicMode &&
             StoreShutterButton.Instance != null && (StoreClientMono.Instance == null || !StoreClientMono.Instance.IsMoving()) &&
             (ui.confirmPanelUIManager == null || !Visible(ui.confirmPanelUIManager.panel)) &&
-            (NegociationUIManager.Instance == null || !Visible(NegociationUIManager.Instance.confirmPanel)) &&
+            (NegociationUIManager.Instance == null || !Visible(GameAccess.NegotiationConfirm(NegociationUIManager.Instance))) &&
             store.lockAllFlag == 0 && store.lockClientClickFlag == 0 && store.lockAllInventoryFlag == 0 &&
-            !store.isClientBeingArrested && !store.isHandlingShootout && !ui.isTyping && !ui.isAboutToStartMainDialog &&
+            !store.isClientBeingArrested && !store.isHandlingShootout && !GameAccess.IsTyping(ui) && !ui.isAboutToStartMainDialog &&
             !UIDragHandler.isDraggingAnyUI && (ItemMouseDragHandler.current == null || !ItemMouseDragHandler.current.IsDraggingItem) &&
             !Input.GetMouseButton(0) && !Input.GetMouseButton(1);
     }
@@ -438,7 +453,7 @@ internal static partial class GameHooks
         if (UIDragHandler.isDraggingAnyUI || ItemMouseDragHandler.current != null && ItemMouseDragHandler.current.IsDraggingItem ||
             Input.GetMouseButton(0) || Input.GetMouseButton(1)) result |= ClosingBlocker.Dragging;
         var dialog = DialogUIManager.Instance;
-        if (ui.isTyping || ui.isAboutToStartMainDialog || dialog != null &&
+        if (GameAccess.IsTyping(ui) || ui.isAboutToStartMainDialog || dialog != null &&
             (dialog.isWaitingForManualAdvance || dialog.IsChoice() || !dialog.IsCurrentDialogEnd())) result |= ClosingBlocker.Dialogue;
         if (tradeDepth > 0) result |= ClosingBlocker.TradeCommit;
         result |= NegotiationBlocker(result);
@@ -456,7 +471,7 @@ internal static partial class GameHooks
             var bargain=BargainUIManager.Instance;
             var entry=EmporiumEntry.Instance;
             var back=entry?.backInvinvElement;
-            bool known=nego!=null && nego.uiObject!=null && nego.confirmPanel!=null &&
+            bool known=nego!=null && (!nego.IsOpen || GameAccess.NegotiationConfirm(nego)!=null) &&
                 bargain!=null && bargain.uiObject!=null && back!=null;
             var storeItem=store.currentNegociatedItem;
             var uiItem=nego?.currentNegociatedItem;
@@ -465,15 +480,15 @@ internal static partial class GameHooks
             // trade tables, whose item ownership is independently verified by InspectTables.
             bool KnownSelection(GameItem? item) => item==null || back!=null && item.state!=null &&
                 !string.IsNullOrEmpty(item.identifier) && item.parentInventory!=null &&
-                (item.parentInventory.Pointer==back.Pointer ||
-                 entry?.frontInvinvElement!=null && item.parentInventory.Pointer==entry.frontInvinvElement.Pointer ||
-                 entry?.backInvinvElementCounter!=null && item.parentInventory.Pointer==entry.backInvinvElementCounter.Pointer);
+                (item.parentInventory.Id()==back.Id() ||
+                 entry?.frontInvinvElement!=null && item.parentInventory.Id()==entry.frontInvinvElement.Id() ||
+                 entry?.backInvinvElementCounter!=null && item.parentInventory.Id()==entry.backInvinvElementCounter.Id());
             bool quiet=other==ClosingBlocker.None && SafeToAct() && tradeDepth==0 &&
                 store.lockStorePhysicalFlag==0 && store.lockNextBellFlag==0;
-            var facts=new NegotiationFacts(known,offerVisible,Visible(nego?.confirmPanel),
+            var facts=new NegotiationFacts(known,offerVisible,Visible(GameAccess.NegotiationConfirm(nego)),
                 bargainVisible,quiet,KnownSelection(storeItem)&&KnownSelection(uiItem));
             var blocker=NegotiationSafety.Blocker(facts);
-            string trace=$"negotiation facts known={known} offer={facts.OfferVisible} confirm={facts.ConfirmationVisible} bargain={facts.BargainVisible} quiet={quiet} selectionKnown={facts.SelectionKnown} storeItem={storeItem?.Pointer.ToInt64()??0} uiItem={uiItem?.Pointer.ToInt64()??0} visit={store.currentClientInstance?.Pointer.ToInt64()??0} tradeDepth={tradeDepth} blocker={blocker}";
+            string trace=$"negotiation facts known={known} offer={facts.OfferVisible} confirm={facts.ConfirmationVisible} bargain={facts.BargainVisible} quiet={quiet} selectionKnown={facts.SelectionKnown} storeItem={storeItem.Id()} uiItem={uiItem.Id()} visit={store.currentClientInstance.Id()} tradeDepth={tradeDepth} blocker={blocker}";
             if(trace!=lastNegotiationTrace) { lastNegotiationTrace=trace; Mod.Trace(trace); }
             return blocker;
         }
@@ -493,8 +508,8 @@ internal static partial class GameHooks
             if(entry==null || entry.frontInvinvElement==null || entry.backInvinvElement==null || entry.backInvinvElementCounter==null)
                 return ClosingBlocker.UnknownTable;
             var instance=PlayerStore.Instance.currentClientInstance;
-            long visit=instance==null?0:instance.Pointer.ToInt64();
-            bool ordinary=instance!=null && IsOrdinary(instance.storeClient);
+            long visit=instance==null?0:instance.Id();
+            bool ordinary=instance!=null && IsOrdinary(instance?.GetClientBlueprint());
             var facts=new List<TableItemFacts>();
             void Inspect(GameGridInventory inventory, bool cleanupScope)
             {
@@ -504,7 +519,7 @@ internal static partial class GameHooks
                 {
                     var item=items[i];
                     if(item==null || item.state==null || item.parentInventory==null || string.IsNullOrEmpty(item.identifier) ||
-                        item.parentInventory.Pointer!=inventory.Pointer)
+                        item.parentInventory.Id()!=inventory.Id())
                     { facts.Add(new TableItemFacts(null,false,false,cleanupScope)); continue; }
                     bool owned=GeneralHelper.IsItemOwned(item);
                     bool nested=false, nestedKnown=false;
@@ -513,16 +528,16 @@ internal static partial class GameHooks
                         var children=item.FindAllChildItems();
                         if(children==null) { facts.Add(new TableItemFacts(null,false,false,cleanupScope)); continue; }
                         for(int j=0;j<children.Count;j++)
-                            if(children[j]==null || children[j].Pointer!=item.Pointer) { nested=true; break; }
+                            if(children[j]==null || children[j].Id()!=item.Id()) { nested=true; break; }
                         if(nested) nestedKnown=NestedCustomerGoodsKnown(item,visit);
                     }
-                    facts.Add(new TableItemFacts(owned,goods.Known(visit,item.Pointer.ToInt64(),item.uniqueId),nested,cleanupScope,
+                    facts.Add(new TableItemFacts(owned,goods.Known(visit,item.Id(),item.uniqueId),nested,cleanupScope,
                         nestedKnown));
                 }
             }
             Inspect(entry.frontInvinvElement,true); Inspect(entry.backInvinvElement,true);
             var counter=entry.backInvinvElementCounter;
-            bool alias=counter.Pointer==entry.frontInvinvElement.Pointer || counter.Pointer==entry.backInvinvElement.Pointer;
+            bool alias=counter.Id()==entry.frontInvinvElement.Id() || counter.Id()==entry.backInvinvElement.Id();
             if(!alias) Inspect(counter,false);
             var assessment=TableOwnershipPolicy.Assess(facts,ordinary);
             Mod.TraceTableAssessment(assessment);
@@ -539,11 +554,11 @@ internal static partial class GameHooks
             escape != null && Visible(escape.menuPanel),
             ui.gameOptionUIManager != null && Visible(ui.gameOptionUIManager.optionPanel),
             escape != null && Visible(escape.playtestExitUI),
-            escape != null && escape.isPendingTransition);
+            escape != null && GameAccess.ExitPending(escape));
     }
 
     internal static bool NativeExitPending => StoreUIManager.Instance.escapeUIManager != null &&
-        StoreUIManager.Instance.escapeUIManager.isPendingTransition;
+        GameAccess.ExitPending(StoreUIManager.Instance.escapeUIManager);
 
 
     private static bool Visible(GameObject? value) => value != null && value.activeInHierarchy;
@@ -571,7 +586,7 @@ internal static partial class GameHooks
     internal static ShopFrame Frame(out string reason)
     {
         var store = PlayerStore.Instance;
-        var client = store.currentClientInstance?.storeClient;
+        var client = store.currentClientInstance?.GetClientBlueprint();
         bool protectedVisit = client != null && !IsOrdinary(client);
         bool tutorial = TutorialActive();
         bool dialogue = DialogueVisible();
@@ -605,7 +620,7 @@ internal static partial class GameHooks
             NegociationUIManager.Instance.CloseUI();
             frame = Frame(out _);
             if (store.currentClientInstance == null || visit == null ||
-                store.currentClientInstance.Pointer != visit.Pointer || frame.Protected || frame.Suspended ||
+                store.currentClientInstance.Id() != visit.Id() || frame.Protected || frame.Suspended ||
                 !frame.Ready || !frame.SafeToDismiss || !ClosingSafety.Safe(frame.ClosingBlockers)) return false;
         }
         store.DismissCurrentClient(false, true, true);
@@ -657,7 +672,7 @@ internal static partial class GameHooks
         var tutorial = TutorialUIManager.Instance;
         if (tutorial != null)
             foreach (var hint in tutorialHints)
-                if (Visible((GameObject?)hint.GetValue(tutorial)) && SleepHintPolicy.Blocks(hint.Name,tutorial.tutorialStage,nativeSleepReady))
+                if (Visible((GameObject?)hint.GetValue(tutorial)) && SleepHintPolicy.Blocks(hint.Name,GameAccess.TutorialStage(tutorial),nativeSleepReady))
                 {reason="Finish or dismiss the current tutorial instruction before sleeping.";return false;}
         if (!SafeToAct() || DialogueVisible() || NativeReportVisible || NativeExitPending ||
             store.currentClientInstance!=null || HasProtectedQueued() ||
@@ -693,7 +708,8 @@ internal static partial class GameHooks
             return; // Native UI must finish opening before its enabled state is read.
         }
         sleepUI.RefreshUI();
-        if(sleepUI.endDayButton==null || !sleepUI.endDayButton.IsInteractable() || !Visible(sleepUI.endDayButton.gameObject))
+        var sleepButton = GameAccess.SleepButton(sleepUI);
+        if(sleepButton==null || !sleepButton.Interactable || !Visible(sleepButton.gameObject))
         {SleepBlocked("Sleep is due, but the native sleep requirements are not met. Resolve the displayed warning.");return;}
         sleepUI.OnEndDayButtonClick();
     }
@@ -710,9 +726,10 @@ internal static partial class GameHooks
         {
             if(Mod.Clock.SleepRequested)return false;
             var ui=EndOfDayUIManager.Instance;
-            if(ui==null || !Visible(ui.UI) || ui.endDayButton==null)return false;
+            if(ui==null || !ui.IsOpen)return false;
             ui.RefreshUI();
-            if(!ui.endDayButton.IsInteractable() || !Visible(ui.endDayButton.gameObject))return false;
+            var sleepButton = GameAccess.SleepButton(ui);
+            if(sleepButton==null || !sleepButton.Interactable || !Visible(sleepButton.gameObject))return false;
             if(!SleepSafe(out string reason,true)){SleepBlocked(reason);return false;}
             bool outing=PlayerStore.Instance.healthData.wentToAfterhoursLastNight;
             if(!Mod.Clock.RequestSleep(outing))return false;

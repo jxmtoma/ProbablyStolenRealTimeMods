@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Manifest>
+  <ID>realtime_shop</ID>
+  <Name>Real-Time Shop</Name>
+  <Author>ProbablyStolenMods</Author>
+  <ModVersion>2.0.0</ModVersion>
+  <Description>Opt-in real-time days, customer patience and after-hours sleep. Changes time and potential income for explicitly enabled new saves. Back up saves and both realtime sidecars before installing.</Description>
+  <GameVersions><Version>0.46D</Version></GameVersions>
+  <Prerequisites />
+  <Assemblies><Assembly>ProbablyStolen.RealTimeShop.dll</Assembly></Assemblies>
+  <Capabilities>
+    <Capability>files</Capability>
+    <Capability>reflection-external</Capability>
+  </Capabilities>
+</Manifest>

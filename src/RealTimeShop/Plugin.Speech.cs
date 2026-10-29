@@ -1,4 +1,3 @@
-using Il2Cpp;
 using UnityEngine.Localization.Settings;
 
 namespace RealTimeShop;
@@ -17,7 +16,7 @@ public sealed partial class Plugin
         try
         {
             var client = PlayerStore.Instance.currentClientInstance;
-            return (client?.Pointer.ToInt64() ?? 0, client?.storeClient?.displayName ?? "");
+            return (client.Id(), client?.GetClientBlueprint()?.displayName ?? "");
         }
         catch (Exception ex) { BarkFailure(ex); return (0, ""); }
     }
@@ -31,7 +30,7 @@ public sealed partial class Plugin
     private void BarkFailure(Exception ex)
     {
         barkFailed = true; ClearBarks();
-        LoggerInstance.Warning("Customer speech unavailable; gameplay continues unchanged: " + ex);
+        log.Warning("Customer speech unavailable; gameplay continues unchanged: " + ex);
     }
 
     internal void CustomerVisualGone()
@@ -47,7 +46,7 @@ public sealed partial class Plugin
         try
         {
             double now = wall.Elapsed.TotalSeconds;
-            bark.Observe(Clock.DayKey, PlayerStore.Instance.currentClientInstance?.Pointer.ToInt64() ?? 0,
+            bark.Observe(Clock.DayKey, PlayerStore.Instance.currentClientInstance.Id(),
                 bark.Departing ? GameHooks.DepartureBarkUiBlocked() : GameHooks.BarkUiBlocked(),
                 Math.Max(0, now - lastBarkTick), barkPresented, GameHooks.BarkSpeakerVisible());
             double delta = Math.Max(0, now - lastBarkTick);
@@ -63,8 +62,8 @@ public sealed partial class Plugin
         try
         {
             var client = PlayerStore.Instance.currentClientInstance;
-            bark.Warn(Clock.DayKey, client == null ? 0 : client.Pointer.ToInt64(),
-                client?.storeClient?.displayName ?? "", BarkLocale(), !GameHooks.BarkUiBlocked());
+            bark.Warn(Clock.DayKey, client == null ? 0 : client.Id(),
+                client?.GetClientBlueprint()?.displayName ?? "", BarkLocale(), !GameHooks.BarkUiBlocked());
         }
         catch (Exception ex) { BarkFailure(ex); }
     }

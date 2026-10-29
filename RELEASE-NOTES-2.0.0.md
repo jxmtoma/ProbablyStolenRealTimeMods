@@ -1,0 +1,13 @@
+# Real-Time Shop 2.0.0 — full-release compatibility
+
+Ports Real-Time Shop to the full game's **Mono runtime and built-in mod loader**. The demo's IL2CPP/MelonLoader DLL cannot run in this runtime. Version 2.0.0 targets Windows Steam app **4348910**, updated public build **26284217 / VERSION 100-Rev3**, and retains the earlier full-release **26274380 / VERSION 100-Rev1** assembly hash. Unknown game assemblies still disable the mod.
+
+The real-time checkbox now appears on the final **Difficulty** screen after scenario/perks. It defaults OFF, resets on back navigation and is consumed only by that new run. Settings use the native Mods settings UI. Customer/visit identity uses weak managed object IDs; private Mono fields are resolved explicitly. The placement hook follows the full game's successful TryAddDirectSellingItemToTable path, preserving ownership tracking for timed departures. Sleep checks use the new native tablet button.
+
+Consent/timer schemas are preserved using the game's supplied Newtonsoft.Json and atomic sidecar replacement. Historical day loads check their actual native file and cannot borrow valid timers from the latest slot. Existing vanilla saves stay vanilla. Defaults remain **30 active minutes / 120 seconds patience / 60 seconds closing grace**, diagnostics OFF.
+
+The Release build has **zero warnings/errors**, **31,141 managed checks and 38 security assertions** pass, and **605 managed member references** resolve. Focused private game checks cover native loader activation/scanning, new-game consent, native save/restore, pause, idle trade cancellation with item/cash preservation, automatic closing, evening/bedroll time and one 03:00 sleep with an 11:00 morning and matched overnight reload. See [the compatibility record](releases/2.0.0/COMPATIBILITY.md) and [native test scope](releases/2.0.0/NATIVE-TESTS.md) for exact hashes, controls and limits.
+
+Install the player ZIP into the full game so **Mods/RealTimeShop** contains manifest.xml and ProbablyStolen.RealTimeShop.dll. Activate it in the game's Mods menu, review file/reflection permissions, and restart. Explicitly select Real-time mode on the Difficulty screen for a new game. MelonLoader is no longer required. Back up saves and both sidecars first; [installation and rollback instructions](USER-INSTALL-AND-ACCEPTANCE.md) describe the native package layout.
+
+Downloads: **RealTimeShop-2.0.0.zip** and **SHA256SUMS.txt**. Source and build instructions are available at [tag v2.0.0](https://github.com/jxmtoma/ProbablyStolenRealTimeMods/tree/v2.0.0). Local source snapshots and reproducibility records remain local; no source ZIP is manually uploaded to GitHub or Nexus.

@@ -7,11 +7,22 @@ void Check(bool condition, string description)
     count++;
 }
 void Near(double actual, double expected, string description) => Check(Math.Abs(actual - expected) < 0.00001, description);
-Check(GameCompatibility.Supports(true, "A2CAA0CECBF197CCD6B12DDEC7BB9E6FA0BC2CD2A5C52ABEF627AA919E2B9BFD"), "updated demo build 26017150 accepted");
-Check(GameCompatibility.Supports(true, "3BEA17EEEC77ADAB6418918C28A8AA9A06F290582A2972639A48BD7E5A01AB44"), "previous demo build 25382790 retained");
+Check(GameCompatibility.Supports(true, "0FD3DE05D961C8A415758F8F78A8E0A32692B8B45FB34350DF885ED8BD5E8EB0"), "full release hotfix build 26284217 accepted");
+Check(GameCompatibility.Supports(true, "52F11980B737F10315723FD6EA09AC49C033A7044978DC1CEFAC0137BA93E556"), "full release build 26274380 retained");
+Check(!GameCompatibility.Supports(true, "A2CAA0CECBF197CCD6B12DDEC7BB9E6FA0BC2CD2A5C52ABEF627AA919E2B9BFD"), "demo build 26017150 requires the legacy mod");
+Check(!GameCompatibility.Supports(true, "3BEA17EEEC77ADAB6418918C28A8AA9A06F290582A2972639A48BD7E5A01AB44"), "previous demo build requires the legacy mod");
 foreach (string hash in new[] { "", new string('0', 64), GameCompatibility.CurrentGameAssemblySha256[..63] + "E" })
     Check(!GameCompatibility.Supports(true, hash), "missing, unknown or changed game binary rejected");
 Check(!GameCompatibility.Supports(false, GameCompatibility.CurrentGameAssemblySha256), "non-Windows rejected even with a known hash");
+var firstIdentity = new string('x', 3);
+var equalIdentity = new string('x', 3);
+Check(firstIdentity.Id() > 0 && firstIdentity.Id() == firstIdentity.Id(), "managed identity is stable and nonzero");
+Check(firstIdentity == equalIdentity && firstIdentity.Id() != equalIdentity.Id(), "value-equal objects have independent managed identities");
+Check(ObjectIdentity.Id(null) == 0, "missing managed object has no identity");
+var parallelIdentities = Enumerable.Range(0, 1024).Select(_ => new object()).ToArray();
+var identityIds = new long[parallelIdentities.Length];
+Parallel.For(0, identityIds.Length, i => identityIds[i] = parallelIdentities[i].Id());
+Check(identityIds.Distinct().Count() == identityIds.Length && identityIds.All(id => id > 0), "concurrent identities never collide");
 ShopClock Fresh(Timing? timing = null)
 {
     var value = new ShopClock(timing ?? new Timing());
@@ -139,6 +150,17 @@ try
     Check(SaveSidecar.TryRestore(native, restored, clock.DayKey, shopper.Customer, out _), "sidecar round trip");
     Near(restored.Elapsed, 10, "sidecar elapsed restored");
     Check(!Directory.EnumerateFiles(folder, "*.tmp").Any(), "atomic write leaves no temporary file");
+    using (var nativeStream = File.OpenRead(native))
+    using (var nativeSha = System.Security.Cryptography.SHA256.Create())
+    {
+        var legacyJson = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            Version = 2, NativeHash = SaveEncoding.Hex(nativeSha.ComputeHash(nativeStream)), Clock = clock.Capture()
+        });
+        File.WriteAllText(SaveSidecar.PathFor(native), legacyJson);
+    }
+    Check(SaveSidecar.TryRestore(native, restored, clock.DayKey, shopper.Customer, out _), "demo System.Text.Json timer schema remains readable through Newtonsoft.Json");
+    Near(restored.Elapsed, 10, "legacy serializer preserves timer values after migration");
     File.WriteAllText(native, "different-native-save");
     Check(!SaveSidecar.TryRestore(native, restored, clock.DayKey, shopper.Customer, out _) && !restored.Timed, "native fingerprint mismatch");
     File.WriteAllText(SaveSidecar.PathFor(native), "{bad json");

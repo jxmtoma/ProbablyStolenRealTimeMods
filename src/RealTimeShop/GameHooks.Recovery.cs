@@ -1,4 +1,3 @@
-using Il2Cpp;
 using UnityEngine;
 
 namespace RealTimeShop;
@@ -27,10 +26,10 @@ internal static partial class GameHooks
         try
         {
             if(__0==null){goods.Clear();return;}
-            goods.Forget(__0.Pointer.ToInt64());
+            goods.Forget(__0.Id());
             var children=__0.FindAllChildItems();
             if(children==null || children.Count>4096){goods.Clear();return;}
-            for(int i=0;i<children.Count;i++)if(children[i]!=null)goods.Forget(children[i].Pointer.ToInt64());
+            for(int i=0;i<children.Count;i++)if(children[i]!=null)goods.Forget(children[i].Id());
         }
         catch{goods.Clear();}
     }
@@ -40,8 +39,8 @@ internal static partial class GameHooks
         for(int depth=0;depth<64;depth++)
         {
             var parent=item.parentInventory?.GetParentItem();
-            if(parent==null || !seen.Add(parent.Pointer.ToInt64()))return false;
-            if(parent.Pointer==root.Pointer)return true;
+            if(parent==null || !seen.Add(parent.Id()))return false;
+            if(parent.Id()==root.Id())return true;
             item=parent;
         }
         return false;
@@ -54,9 +53,9 @@ internal static partial class GameHooks
         {
             var child=children[i];
             if(child==null || child.state==null || string.IsNullOrEmpty(child.identifier) || child.parentInventory==null ||
-                GeneralHelper.IsItemEffectivelyOwned(child) || child.Pointer!=root.Pointer && !DescendantOf(child,root))return;
+                GeneralHelper.IsItemEffectivelyOwned(child) || child.Id()!=root.Id() && !DescendantOf(child,root))return;
         }
-        for(int i=0;i<children.Count;i++)goods.Record(visit,children[i].Pointer.ToInt64(),children[i].uniqueId);
+        for(int i=0;i<children.Count;i++)goods.Record(visit,children[i].Id(),children[i].uniqueId);
     }
     private static bool NestedCustomerGoodsKnown(GameItem root,long visit)
     {
@@ -66,8 +65,8 @@ internal static partial class GameHooks
         {
             var child=children[i];
             if(child==null || child.state==null || string.IsNullOrEmpty(child.identifier) || child.parentInventory==null ||
-                GeneralHelper.IsItemEffectivelyOwned(child) || !goods.Known(visit,child.Pointer.ToInt64(),child.uniqueId) ||
-                child.Pointer!=root.Pointer && !DescendantOf(child,root))return false;
+                GeneralHelper.IsItemEffectivelyOwned(child) || !goods.Known(visit,child.Id(),child.uniqueId) ||
+                child.Id()!=root.Id() && !DescendantOf(child,root))return false;
         }
         return true;
     }
@@ -78,7 +77,7 @@ internal static partial class GameHooks
             store.isSecurityAlarmActive || store.isClientBeingArrested || store.isHandlingShootout ||
             store.lockAllFlag!=0 || store.lockClientClickFlag!=0 || store.lockAllInventoryFlag!=0 ||
             store.playerLocation!=PlayerStore.PlayerLocation.IN_STORE ||
-            store.currentClientInstance!=null && !IsOrdinary(store.currentClientInstance.storeClient) ||
+            store.currentClientInstance!=null && !IsOrdinary(store.currentClientInstance?.GetClientBlueprint()) ||
             BarkUiPolicy.Blocks(ClosingBlockers());
     }
     internal static bool BarkSpeakerVisible()
@@ -86,7 +85,7 @@ internal static partial class GameHooks
         var client=StoreClientMono.Instance;var image=client?.image;
         return client!=null && client.gameObject.activeInHierarchy && image!=null && image.enabled &&
             image.gameObject.activeInHierarchy && image.sprite!=null && image.isVisible && image.color.a>0.01f &&
-            (client.mpb==null || CustomerSpeechVisibility.BeforeShadow(client.mpb.GetFloat(StoreClientMono.SolidBlendId)));
+            (GameAccess.Shadow(client) is not float blend || CustomerSpeechVisibility.BeforeShadow(blend));
     }
     internal static bool DepartureBarkUiBlocked()
     {
@@ -95,9 +94,9 @@ internal static partial class GameHooks
         return Mod.TimersHeld || Busy || IsBlackScreen() || store.cinematicMode || TutorialActive() || DialogueVisible() ||
             NativeReportVisible || NativeExitPending || store.isSecurityAlarmActive || store.isClientBeingArrested ||
             store.isHandlingShootout || store.playerLocation!=PlayerStore.PlayerLocation.IN_STORE ||
-            store.currentClientInstance!=null || ui.isTyping || ui.isAboutToStartMainDialog || tradeDepth>0 ||
+            store.currentClientInstance!=null || GameAccess.IsTyping(ui) || ui.isAboutToStartMainDialog || tradeDepth>0 ||
             ui.confirmPanelUIManager!=null && Visible(ui.confirmPanelUIManager.panel) || negotiation==null || bargain==null ||
-            Visible(negotiation.uiObject) || Visible(negotiation.confirmPanel) || Visible(bargain.uiObject) ||
+            Visible(negotiation.uiObject) || Visible(GameAccess.NegotiationConfirm(negotiation)) || Visible(bargain.uiObject) ||
             UIDragHandler.isDraggingAnyUI || ItemMouseDragHandler.current!=null && ItemMouseDragHandler.current.IsDraggingItem ||
             Input.GetMouseButton(0) || Input.GetMouseButton(1);
     }

@@ -1,0 +1,11 @@
+{
+  "dllSha256": "F911A599F9A88C39E662D16C2684A6CD43D4EF150AB78BBBD16AD6DAF0015A0C",
+  "gameAssemblyPath": "Probably Stolen_Data/Managed/Assembly-CSharp.dll",
+  "gameAssemblySha256": "0FD3DE05D961C8A415758F8F78A8E0A32692B8B45FB34350DF885ED8BD5E8EB0",
+  "legacyLoaderReferences": false,
+  "referencedMembers": 605,
+  "resolvedMembers": 605,
+  "failures": [],
+  "passed": true,
+  "methodology": "Read-only Cecil resolution of all mod member references into the full game managed assemblies, including compiler-generated code. Reject legacy MelonLoader/IL2CPP references and unsupported stubs. Does not validate reflection targets, execute game methods, verify their semantics or replace gameplay testing."
+}

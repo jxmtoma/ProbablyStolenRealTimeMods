@@ -1,64 +1,29 @@
-# Installation and acceptance
+# Full-release installation and acceptance
 
-## 1.0.1 compatibility update for the updated demo
+Version **2.0.0** uses the full game's built-in mod loader and Mono runtime. The old 1.0.1 demo package is incompatible with that runtime. Exact tested game/mod hashes and completed checks are in [the evidence record](releases/2.0.0/COMPATIBILITY.md).
 
-Build **26017150 / 050rev5-L** is now recognized alongside the previous **25382790**. Use the 1.0.1 DLL; the historical 1.0.0 package rejects the updated game. Build/managed/interop and focused isolated native checks pass, including opt-in, save/restore, pause, idle trade timeout, closing, evening time, 03:00 sleep and next-morning reload. The exact tested DLL is installed locally with preferences preserved and a rollback backup. See [release notes](RELEASE-NOTES-1.0.1.md), [native test scope](releases/1.0.1/NATIVE-TESTS.md) and [the evidence record](releases/1.0.1/COMPATIBILITY.md). Broader gameplay acceptance remains limited to those recorded cases.
+## Install
 
-Close the game and preserve a matched backup of the native save folder with both sidecars, mod DLL and preferences. With MelonLoader 0.7.3, install only `Mods/ProbablyStolen.RealTimeShop.dll`, keeping one copy. Use an isolated disposable save first. Confirm the loader identifies **1.0.1** without disabling the mod. Check the new-game choice defaults off, then verify explicit opt-in, matched save/timer restore, native save, idle trade timeout, closing and sleep using the acceptance table below. Record these as new-build results; older native results do not establish a pass. Keep defaults **30 / 120 / 60**, diagnostics off. Roll back to the matched backup if any check fails.
+1. Close the game. Back up the entire native save folder, including all .es3 files and both .realtime-shop.json and .realtime-choice.json sidecars. Keep the current mod folder and configuration separately. Default save folder: %USERPROFILE%\\AppData\\LocalLow\\Questing Goose Studio\\Probably Stolen.
+2. Verify the player ZIP against SHA256SUMS.txt, then extract it into the full game's directory. Install only Mods/RealTimeShop/manifest.xml and Mods/RealTimeShop/ProbablyStolen.RealTimeShop.dll. Keep one version. Game/dependency binaries are excluded.
+3. In the game's Mods menu, activate **Real-Time Shop**, review file/reflection permissions, and restart. Do not install MelonLoader for this package. Unknown managed game binaries deliberately disable the mod and report their hash.
+4. Use a disposable new save first. Choose scenario and perks, then select **Real-time mode** on the Difficulty screen before starting. The checkbox defaults OFF and resets on back navigation. Leaving it OFF must preserve vanilla behavior.
+5. Leave settings at **30 / 120 / 60**, diagnostics OFF. Configure through the native Mods settings UI and restart after changes. Native settings live in ModConfigs/realtime_shop.json under the save folder. Previous demo preferences are not automatically imported.
 
-The remaining package-specific sections below are historical instructions for 1.0.0 / RC.24 / RC.25 and their older game build.
+## Acceptance
 
-## Prepared 1.0.0 package
+| Check | Expected result |
+| --- | --- |
+| New-game consent | Checkbox defaults OFF; back/reopen resets it; explicit selection enables only the created run. |
+| Clock and pause | Calendar advances during safe active time, including closed-shutter preparation. Native dialogue, pause/options and focus loss hold timers without catch-up. |
+| Trading | Idle offer/bargain panels allow time to pass. Ordinary timeout cancels safely without accepting a deal or changing owned goods/cash. Confirmation, dragging, commits and protected visits defer departure. |
+| Closing | Ordinary admission stops at 20:00. Native safe closure still respects outstanding security, scripted and rent work. |
+| Evening and sleep | Closed/bedroll time progresses through midnight. At 03:00 safe native sleep advances one day, with one native expense charge and an 11:00 wake on an ordinary night. |
+| Save/load | Native save and both sidecars restore the same slot/run/day clock. Historical files without their own matched sidecars stay vanilla. Overnight reload must not duplicate a charge/day advance. |
+| Speech and UI | Customer warnings remain readable and clear when the visual leaves. Setup controls do not overlap native controls or change native options. |
 
-Use `RealTimeShop-1.0.0.zip` for installation; the `-source.zip` archive is for rebuilding. Check its hash against SHA256SUMS.txt and the DLL against the package's SOURCE.txt. The supported demo and prerequisites below still apply. Close the game and back up the entire native save folder with both sidecars, current mod DLL and mod preferences. Install only `Mods/ProbablyStolen.RealTimeShop.dll` and retain one copy. Confirm the loader identifies **1.0.0**, then use a disposable real-time save first. Existing vanilla saves stay vanilla. Defaults remain **30 / 120 / 60**, with diagnostics off.
+Inspect the version-specific evidence before treating any row as verified. Long campaigns, every trade/security/rent/scripted variant, mod combinations and live Steam integration require additional acceptance. Retain relevant errors and test captures privately; remove personal data before sharing logs.
 
-The standard build, managed checks and exact 1.0.0 native startup/save restore smoke check pass. See [the preparation record](releases/1.0.0/PREPARATION.md) for precise evidence and limits. No release tag or public upload has been made. Roll back with your matched pre-install backup as described below.
+## Uninstall and rollback
 
-RC.25 has been installed locally and passed focused native timing tests. See [the installation and test record](release-rc25-native-test.txt) for its hash, backup, isolated test setup and exact coverage. Your normal saves/options and mod preferences were verified unchanged. The existing RC.24 archive does not contain these fixes; the archive-specific instructions below describe that historical package. There is no RC.25 public ZIP yet.
-
-## Historical RC.24 package instructions
-
-The following instructions and original pending-acceptance checklist describe the archived RC.24 review package, not the installed RC.25 DLL. RC.24 restores the missing RC.22 warning guards and supersedes RC.23. Its exact package/DLL hashes are recorded in PACKAGE-CONTENTS.sha256 and SOURCE.txt. Use the RC.25 test record above for current observed results.
-
-## Confirm before changing anything
-
-- Use `RealTimeShop-0.2.1-rc.24-recovered-review.zip`; verify its ZIP hash against the accompanying SHA256SUMS.txt. The source ZIP is for rebuilding, not installation.
-- Exact target: Windows Steam Demo app **4349200**, public build **25382790**, visible **049-Rev5-L**, internal Unity version **0.46D**. Other builds/full game are unverified.
-- Required separately: **MelonLoader 0.7.3**, **.NET 6 runtime** and loader-generated interop. These already exist on the inspected PC: .NET 6.0.36, HarmonyX 2.10.2 and Il2CppInterop.Runtime 1.5.1-ci.845. An SDK is not needed to play. If prerequisites differ, stop; this checklist does not install them.
-- The actual ZIP has **no enclosing mod folder**: its sole installable binary is `Mods/ProbablyStolen.RealTimeShop.dll` . Other entries are text instructions, hashes and license notices. There are no game/loader/runtime binaries.
-
-## Backup and install
-
-1. Close the game. Keep backups outside the game and `Mods` folders. Copy the entire normal save folder `%USERPROFILE%\AppData\LocalLow\Questing Goose Studio\Probably Stolen`, including native `.es3` files and BOTH `.realtime-shop.json` and `.realtime-choice.json` sidecars. Also back up `Mods\ProbablyStolen.RealTimeShop.dll` and `UserData\MelonPreferences.cfg` from the game directory. Confirm the copies exist before replacing anything. Keep this pre-test backup unchanged.
-2. Use an **already verified disposable test profile/save environment** with isolated saves/preferences/progression writes. Back up that profile too. Never load an important campaign for these checks. If isolation is unavailable, stop before launching; a backup alone does not establish isolation.
-3. Extract the player ZIP into a temporary folder. Check the extracted DLL:
-
-   ```powershell
-   Get-FileHash '<extracted folder>\Mods\ProbablyStolen.RealTimeShop.dll' -Algorithm SHA256
-   ```
-
-   Expected: the DLL SHA-256 recorded in the extracted SOURCE.txt and PACKAGE-CONTENTS.sha256.
-4. With the game closed, copy **only that DLL** to `C:\Program Files (x86)\Steam\steamapps\common\Probably Stolen Demo\Mods\ProbablyStolen.RealTimeShop.dll`, replacing the already backed-up version. Keep exactly one copy in `Mods`; do not make `Mods\Mods`. Do not overwrite the entire preferences file with `RealTimeShop.cfg.example`.
-5. Start normally under the disposable test environment. Confirm the loader identifies **0.2.1-rc.24-recovered**, with no initialization/disable error. New-game **Real-time mode** must default off; create a disposable game with explicit opt-in. Leave the ordinary saves untouched. Keep default timing **30 / 120 / 60**; if editing the mod section, ensure `Diagnostics=false` and restart.
-
-## Acceptance — record each result, do not assume a pass
-
-| Check | Pass condition |
-|---|---|
-| Clock/dialogue/menu/focus | Calendar advances with active time; actual native dialogue, pause/options and focus loss hold timers, with no catch-up after resume. |
-| Trading | Time continues with trade panels open when there is no native dialogue. An ordinary customer cancels an idle offer/bargaining panel and leaves at patience expiry or closing time; confirmations, commits, dragging and protected visits still defer departure. Verify no deal is accepted by cancellation and purchased/owned/nested items and money match the native result. |
-| Closed clock | Keep shutters closed before opening and after early closure: the calendar keeps advancing. Leave the bedroll screen open and verify evening time continues toward 03:00. Native pause/dialogue/morning reports still hold time. |
-| Patience | On an ordinary ready customer, check the warning near 30 seconds remaining (default 120-second patience). Record typing and actual readability: policy provides six fully readable seconds, capped at fifteen seconds wall age. Speech clears when that customer's visual leaves and never transfers to the next visitor. |
-| Warning edge cases | No warning on a protected visit or inappropriate warning on a dismissal frame. RC.24 restores these guards; a normal playthrough alone cannot prove all edge cases. |
-| Early closure | Close before 20:00, use the native bedroll and enabled sleep button, advance the native day exactly once and reach a playable next morning. |
-| Late/forced sleep | On separate ordinary nights without the native outing flag, 01:00 sleep wakes at 09:00; 03:00 at 11:00. At 03:00, unsafe dialogue/trade/pause/outing/rent must defer sleep; no disabled native button is bypassed. Morning report holds time. |
-| Save/load/menu | Save and reload a matched native save plus both sidecars; clock and consent return without duplicate overnight expense/day advance. Check pause, exit confirmation, save to menu, reload and normal exit. |
-| Quiet output/screenshots | No recurring debug/hold/resume spam. Useful errors and actionable gameplay notices remain. Capture genuine game-window screenshots/timed speech footage with candidate hash/build and factual captions. |
-
-Stop on any exception, disabled-mod error, incorrect item/money/day/save result, missing speech, or unsafe sleep. Retain relevant loader errors and test recordings privately. No test above has yet passed natively for this DLL.
-
-## Roll back
-
-Close the game. Move the candidate DLL out of `Mods`, then restore the backed-up original DLL and preferences. The original inspected RC.22 DLL SHA-256 is `F58F216FE70BD7D6535561DB99D9F244D9DFC5B16A45A8F16AC698F50062812F`. Keep only one mod copy in `Mods`.
-
-If restoring progress, first preserve the candidate test-data folder separately, then restore the **entire matched pre-test data set for that same profile**, including native saves and BOTH sidecars. Do not mix files from different times/profiles, edit hashes, delete your only backup, or merge mismatched sidecars. Removing the mod alone restores native behavior but does not rewind save progress.
+Close the game and move Mods/RealTimeShop out of Mods, or deactivate it and restart. Keep native saves and both sidecars. Removing the mod restores native timing without reversing saved progress. To restore progress, first retain the current files separately, then restore the entire matched native save plus both sidecars from one backup. Never mix snapshots or edit hashes. Demo 1.0.1 cannot run on the full game's Mono runtime.
